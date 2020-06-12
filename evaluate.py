@@ -75,7 +75,7 @@ parser.add_argument(
 parser.add_argument(
     '--weight_decay',
     type=float,
-    default=5e-4,
+    default=1e-4,
     help='weight decay')
 
 parser.add_argument(

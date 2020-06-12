@@ -61,7 +61,7 @@ parser.add_argument(
 parser.add_argument(
     '--learning_rate',
     type=float,
-    default=0.1,
+    default=0.01,
     help='init learning rate')
 
 parser.add_argument(

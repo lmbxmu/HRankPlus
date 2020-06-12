@@ -7,7 +7,7 @@ def adapt_channel(compress_rate, num_layers):
     if num_layers==56:
         stage_repeat = [9, 9, 9]
         stage_out_channel = [16] + [16] * 9 + [32] * 9 + [64] * 9
-    elif num_layers==56:
+    elif num_layers==110:
         stage_repeat = [18, 18, 18]
         stage_out_channel = [16] + [16] * 18 + [32] * 18 + [64] * 18
 
