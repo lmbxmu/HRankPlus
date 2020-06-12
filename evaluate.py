@@ -123,6 +123,7 @@ print_freq = (64*50)//args.batch_size
 if not os.path.isdir(args.job_dir):
     os.mkdir(args.job_dir)
 
+utils.record_config(args)
 logger = utils.get_logger(os.path.join(args.job_dir, 'logger.log'))
 
 

@@ -38,6 +38,7 @@ python rank_generation.py \
 --gpu [gpu_id]
 
 ```
+For the ease of reproducibility, we provide the extracted ranks [here](https://drive.google.com/drive/folders/1kwOFEtmUw6jwk_qNpLydwUjlouuexd5R?usp=sharing):
 
 
 ### Model Training
@@ -68,7 +69,7 @@ python evaluate.py \
 --compress_rate [compress rate]
 ```
 
-After training, best model, final model and logger can be found in the `job_dir`, where the hyper-parameter configuration is also included in the logger file.
+After training, totally four files can be found in the `job_dir`, including best model, final model, config file and logger file.
 
 ## Pre-trained Models 
 

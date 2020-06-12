@@ -6,6 +6,7 @@ import time, datetime
 import logging
 import numpy as np
 from PIL import Image
+from pathlib import Path
 
 import torch
 import torch.nn as nn
@@ -50,6 +51,31 @@ class Lighting(object):
 
     def __repr__(self):
         return self.__class__.__name__ + '()'
+
+
+
+'''record configurations'''
+class record_config():
+    def __init__(self, args):
+        now = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
+        today = datetime.date.today()
+
+        self.args = args
+        self.job_dir = Path(args.job_dir)
+
+        def _make_dir(path):
+            if not os.path.exists(path):
+                os.makedirs(path)
+
+        _make_dir(self.job_dir)
+
+        config_dir = self.job_dir / 'config.txt'
+        if not os.path.exists(config_dir):
+            with open(config_dir, 'w') as f:
+                f.write(now + '\n\n')
+                for arg in vars(args):
+                    f.write('{}: {}\n'.format(arg, getattr(args, arg)))
+                f.write('\n')
 
 
 def get_logger(file_path):
