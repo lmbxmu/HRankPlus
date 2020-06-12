@@ -1,0 +1,6 @@
+.DS_Store
+*/.DS_Store
+.idea
+__pycache__
+run.sh
+models/__pycache__
