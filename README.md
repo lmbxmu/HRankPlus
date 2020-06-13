@@ -32,6 +32,8 @@ For rank generation, the code has been tested by Python 3.6, Pytorch 1.0 and CUD
 
 ```shell
 python rank_generation.py \
+--dataset [dataset name] \
+--data_dir [dataset dir] \
 --pretrain_dir [pre-trained model dir] \
 --arch [model arch name] \
 --limit [batch numbers] \
@@ -50,7 +52,7 @@ CUDA_VISIBLE_DEVICES=[gpu_id] \
 python evaluate_cifar.py \
 --data_dir [CIFAR-10 dataset dir] \
 --job_dir ./result/[model name]/[folder name] \
---arch [model name](vgg_16_bn, resnet_56, googlenet, densenet_40) \
+--arch [model name](vgg_16_bn, resnet_56, resnet_110, googlenet, densenet_40) \
 --use_pretrain \
 --pretrain_dir [pre-trained model dir] \
 --compress_rate [compress rate]
@@ -69,7 +71,8 @@ python evaluate.py \
 --compress_rate [compress rate]
 ```
 
-The following are the examples of compression rate setting for several models:
+The following are the examples of compression rate setting for several models: 
+(Please note that the following compression rates are only used to demonstrate the parameter format, which may not be used in our experiment)
 
 |  Model      | Compress Rate |
 |:-------------:|:-------------------------:|
@@ -77,6 +80,10 @@ The following are the examples of compression rate setting for several models:
 | ResNet-56 | [0.]+[0.18]\*29 | 
 | ResNet-110 | [0.]+[0.2]\*2+[0.3]\*18+[0.35]\*36 | 
 | GoogLeNet | [0.3]+[0.6]\*2+[0.7]\*5+[0.8]\*2 | 
+| DenseNet-40 | [0.]+[0.4]\*12+[0.2]+[0.5]\*12+[0.3]+[0.6]\*12 | 
+| ResNet-50 | [0.1]+[0.2]\*3+[0.5]\*16 | 
+| MobileNet-V1 | [0.]+[0.3]\*12 | 
+| MobileNet-V2 | [0.]+[0.3]*7 | 
 
 After training, totally four files can be found in the `job_dir`, including best model, final model, config file and logger file.
 

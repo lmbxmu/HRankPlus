@@ -41,7 +41,7 @@ class MobileNetV1(nn.Module):
             conv_dw(512, 512, 1, compress_rate[9], compress_rate[10]),
             conv_dw(512, 512, 1, compress_rate[10], compress_rate[11]),
             conv_dw(512, 1024, 2, compress_rate[11], compress_rate[12]),
-            conv_dw(1024, 1024, 1, compress_rate[12], compress_rate[13]),
+            conv_dw(1024, 1024, 1, compress_rate[12], 0.),
         )
         #self.classifier = nn.Linear(1024, num_classes)
         self.classifier = nn.Sequential(
