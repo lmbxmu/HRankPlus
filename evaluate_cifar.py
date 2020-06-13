@@ -18,7 +18,7 @@ import torchvision
 from torchvision import datasets, transforms
 
 from models.cifar10.vgg import vgg_16_bn
-from models.cifar10.resnet import resnet_56
+from models.cifar10.resnet import resnet_56, resnet_110
 from models.cifar10.googlenet import googlenet, Inception
 from models.cifar10.densenet import densenet_40
 
@@ -186,8 +186,12 @@ def load_resnet_model(model, oristate_dict, random_rule, layer):
 
     all_conv_weight = []
 
-    prefix = "/home/zyc/HRank_Plus/rank_conv/resnet_56/rank_conv"
+    if layer==56:
+        prefix = "/home/zyc/HRank_Plus/rank_conv/resnet_56/rank_conv"
+    elif layer==110:
+        prefix = "/home/zyc/HRank_Plus/rank_conv/resnet_110/rank_conv"
     subfix = ".npy"
+
     cnt=0
     for layer, num in enumerate(current_cfg):
         layer_name = 'layer' + str(layer + 1) + '.'
@@ -648,7 +652,7 @@ def main():
 
             #if args.arch=='resnet_56':
             #    origin_model.load_state_dict(ckpt['state_dict'],strict=False)
-            if args.arch == 'densenet_40':
+            if args.arch == 'densenet_40' or args.arch == 'resnet_110':
                 new_state_dict = OrderedDict()
                 for k, v in ckpt['state_dict'].items():
                     new_state_dict[k.replace('module.', '')] = v
@@ -664,6 +668,8 @@ def main():
                 load_vgg_model(model, oristate_dict, args.random_rule)
             elif args.arch == 'resnet_56':
                 load_resnet_model(model, oristate_dict, args.random_rule, 56)
+            elif args.arch == 'resnet_110':
+                load_resnet_model(model, oristate_dict, args.random_rule, 110)
             elif args.arch == 'densenet_40':
                 load_densenet_model(model, oristate_dict, args.random_rule)
             else:

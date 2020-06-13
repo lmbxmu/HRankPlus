@@ -96,12 +96,13 @@ class BasicBlock(nn.Module):
         return out
 
 
-class ResNet56(nn.Module):
+class ResNet(nn.Module):
     def __init__(self, block, num_layers, compress_rate, num_classes=10):
-        super(ResNet56, self).__init__()
+        super(ResNet, self).__init__()
         assert (num_layers - 2) % 6 == 0, 'depth should be 6n+2'
         n = (num_layers - 2) // 6
 
+        self.num_layer = num_layers
         self.overall_channel, self.mid_channel = adapt_channel(compress_rate, num_layers)
 
         self.layer_num = 0
@@ -118,7 +119,12 @@ class ResNet56(nn.Module):
         self.layer3 = self._make_layer(block, blocks_num=n, stride=2)
 
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-        self.fc = nn.Linear(64 * BasicBlock.expansion, num_classes)
+
+        if self.num_layer == 56:
+            self.fc = nn.Linear(64 * BasicBlock.expansion, num_classes)
+        else:
+            self.linear = nn.Linear(64 * BasicBlock.expansion, num_classes)
+
 
     def _make_layer(self, block, blocks_num, stride):
         layers = []
@@ -147,10 +153,17 @@ class ResNet56(nn.Module):
 
         x = self.avgpool(x)
         x = x.view(x.size(0), -1)
-        x = self.fc(x)
+
+        if self.num_layer == 56:
+            x = self.fc(x)
+        else:
+            x = self.linear(x)
 
         return x
 
 
 def resnet_56(compress_rate):
-    return ResNet56(BasicBlock, 56, compress_rate=compress_rate)
+    return ResNet(BasicBlock, 56, compress_rate=compress_rate)
+
+def resnet_110(compress_rate):
+    return ResNet(BasicBlock, 110, compress_rate=compress_rate)

@@ -69,6 +69,15 @@ python evaluate.py \
 --compress_rate [compress rate]
 ```
 
+The following are the examples of compression rate setting for several models:
+
+|  Model      | Compress Rate |
+|:-------------:|:-------------------------:|
+| VGG-16-BN | [0.45]\*7+[0.78]\*5 | 
+| ResNet-56 | [0.]+[0.18]\*29 | 
+| ResNet-110 | [0.]+[0.2]\*2+[0.3]\*18+[0.35]\*36 | 
+| GoogLeNet | [0.3]+[0.6]\*2+[0.7]\*5+[0.8]\*2 | 
+
 After training, totally four files can be found in the `job_dir`, including best model, final model, config file and logger file.
 
 ## Pre-trained Models 
