@@ -69,10 +69,12 @@ class BasicBlock(nn.Module):
         if stride != 1 or inplanes != planes:
             if stride!=1:
                 self.shortcut = LambdaLayer(
-                    lambda x: F.pad(x[:, :, ::2, ::2], (0, 0, 0, 0, (planes-inplanes)//2, planes-inplanes-(planes-inplanes)//2), "constant", 0))
+                    lambda x: F.pad(x[:, :, ::2, ::2],
+                                    (0, 0, 0, 0, (planes-inplanes)//2, planes-inplanes-(planes-inplanes)//2), "constant", 0))
             else:
                 self.shortcut = LambdaLayer(
-                    lambda x: F.pad(x[:, :, :, :], (0, 0, 0, 0, (planes-inplanes)//2, planes-inplanes-(planes-inplanes)//2), "constant", 0))
+                    lambda x: F.pad(x[:, :, :, :],
+                                    (0, 0, 0, 0, (planes-inplanes)//2, planes-inplanes-(planes-inplanes)//2), "constant", 0))
             #self.shortcut = LambdaLayer(
             #    lambda x: F.pad(x[:, :, ::2, ::2], (0, 0, 0, 0, planes//4, planes//4),"constant", 0))
 

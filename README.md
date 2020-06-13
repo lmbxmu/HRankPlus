@@ -85,6 +85,8 @@ The following are the examples of compression rate setting for several models:
 | MobileNet-V1 | [0.]+[0.3]\*12 | 
 | MobileNet-V2 | [0.]+[0.3]*7 | 
 
+With the compress rate, our training module(evaluate_cifar.py and evaluate.py) can automatically calculate the params and FLOPs of that model and record them  in the training logger.
+
 After training, totally four files can be found in the `job_dir`, including best model, final model, config file and logger file.
 
 ## Pre-trained Models 
