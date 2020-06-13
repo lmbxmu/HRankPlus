@@ -535,7 +535,7 @@ def load_densenet_model(model, oristate_dict, random_rule):
     logger.info('random rule: '+ random_rule)
 
     state_dict = model.state_dict()
-    last_select_index = None #Conv index selected in the previous layer
+    last_select_index = [] #Conv index selected in the previous layer
 
     cnt=0
     prefix = "/home/zyc/HRank_Plus/rank_conv/densenet_40/rank_conv"
@@ -545,6 +545,7 @@ def load_densenet_model(model, oristate_dict, random_rule):
         if isinstance(module, nn.Conv2d):
 
             cnt+=1
+            cov_id = cnt
             oriweight = oristate_dict[name + '.weight']
             curweight = state_dict[name + '.weight']
             orifilter_num = oriweight.size(0)
@@ -557,10 +558,9 @@ def load_densenet_model(model, oristate_dict, random_rule):
                     select_index = random.sample(range(0, orifilter_num-1), select_num)
                     select_index.sort()
                 else:
-                    cov_id = cnt
                     logger.info('loading rank from: ' + prefix + str(cov_id) + subfix)
                     rank = np.load(prefix + str(cov_id) + subfix)
-                    select_index = np.argsort(rank)[orifilter_num-currentfilter_num:]  # preserved filter id
+                    select_index = list(np.argsort(rank)[orifilter_num-currentfilter_num:])  # preserved filter id
                     select_index.sort()
 
                 if last_select_index is not None:
@@ -573,16 +573,22 @@ def load_densenet_model(model, oristate_dict, random_rule):
                         state_dict[name + '.weight'][index_i] = \
                             oristate_dict[name + '.weight'][i]
 
-                last_select_index = select_index
-
             elif last_select_index is not None:
                 for i in range(orifilter_num):
                     for index_j, j in enumerate(last_select_index):
                         state_dict[name + '.weight'][i][index_j] = \
                             oristate_dict[name + '.weight'][i][j]
+                select_index = list(range(0, orifilter_num))
+
             else:
+                select_index = list(range(0, orifilter_num))
                 state_dict[name + '.weight'] = oriweight
-                last_select_index = None
+
+            if cov_id==1 or cov_id==14 or cov_id==27:
+                last_select_index = select_index
+            else:
+                tmp_select_index = [x+cov_id*12-(cov_id-1)//13*12 for x in select_index]
+                last_select_index += tmp_select_index
 
     model.load_state_dict(state_dict)
 
