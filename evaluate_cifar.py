@@ -192,7 +192,7 @@ def load_resnet_model(model, oristate_dict, random_rule, layer):
         prefix = "/home/zyc/HRank_Plus/rank_conv/resnet_110/rank_conv"
     subfix = ".npy"
 
-    cnt=0
+    cnt=1
     for layer, num in enumerate(current_cfg):
         layer_name = 'layer' + str(layer + 1) + '.'
         for k in range(num):
