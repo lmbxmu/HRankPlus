@@ -106,10 +106,10 @@ We provide our pruned models in the paper and their corresponding training logge
 | ResNet-56(Baseline)   | 0.85M(0.0%) | 125.49M(0.0%) |  93.26%   | |
 | ResNet-56   | 0.66M(22.3%) | 90.35M(28.0%) |  93.85%(+0.59%)   | [record1](https://drive.google.com/drive/folders/1sfArXzP1iKtBjGMjXXL7GpcgNPjBjRjy?usp=sharing) |
 | ResNet-56   | 0.48M(42.8%) | 65.94M(47.4%) | 93.57%(+0.31%)   | [record3](https://drive.google.com/drive/folders/12Z21U0eUOQSRHde0Nk7TUwgt0i8gCpTm?usp=sharing) |
-| ResNet-56   | 0.26M(69.0%) | 31.20M(75.1%) | 92.14%(-1.12%)  | [record4]() |
+| ResNet-56   | 0.26M(69.0%) | 31.20M(75.1%) | 92.14%(-1.12%)  | [record4](https://drive.google.com/drive/folders/1ujRfo60hqJp3tEOStWruhoFOkDMoxtdq?usp=sharing) |
 | GoogLeNet(Baseline)  | 6.15M(0.0%) | 1520M(0.0%) | 95.05%   |  |
 | GoogLeNet  | 2.85M(53.5%) | 649.19M(57.2%) | 95.04%(-0.01%)   | [record1](https://drive.google.com/drive/folders/1fcoRYP3lxSXxBsZtjl8tEJIKZKebJhEC?usp=sharing) |
-| GoogLeNet  | 2.09M(65.8%) | 395.42M(73.9%) | 94.70%(-0.35%)   | [record2](https://drive.google.com/drive/folders/1zP8iKwWf7JQTie2E_M9p0oxApr52iC2C?usp=sharing) |
+| GoogLeNet  | 2.09M(65.8%) | 395.42M(73.9%) | 94.82%(-0.23%)   | [record2](https://drive.google.com/drive/folders/1QKs2yM0ApsrRr1Tya7kpXfc-B5a4PDXK?usp=sharing) |
 | DenseNet-40(Baseline)  | 1.04M(0.0%) | 282.00M(0.0%) | 94.81%   | |
 | DenseNet-40  | 0.62M(40.1%) | 173.39M(38.5%) | 94.51%(-0.30%)   | [record1](https://drive.google.com/drive/folders/1gCOD7MCyjqY7JYKD_WzznRQN-A85kEqk?usp=sharing) |
 | DenseNet-40  | 0.45M(56.5%) | 133.17M(52.7%) | 93.91%(-0.90%)   | [record3](https://drive.google.com/drive/folders/1s7iuIGKR19-z7fqL54BlszplMmojAP7s?usp=sharing) |
