@@ -72,7 +72,7 @@ python evaluate.py \
 ```
 
 The following are the examples of compression rate setting for several models: 
-(Please note that the following compression rates are only used to demonstrate the parameter format, which may not be used in our experiment)
+(Please note that the following compression rates are only used to demonstrate the parameter format, which may not be used in our experiment. For the specific pruning rate, please refer to the configuration files of pruned model in the next section)
 
 |  Model      | Compress Rate |
 |:-------------:|:-------------------------:|
@@ -93,7 +93,7 @@ After training, totally four files can be found in the `job_dir`, including best
 
 We provide our pruned models in the paper and their corresponding training loggers and configuration files below.
 
-(The percentages in parentheses indicate the pruned proportion)
+(The percentages in parentheses indicate the pruned rate)
 
 ##### CIFAR-10
 

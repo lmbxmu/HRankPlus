@@ -64,7 +64,13 @@ parser.add_argument(
     '--lr_decay_step',
     default='30,60',
     type=str,
-    help='learning rate')
+    help='learning rate decay step')
+
+parser.add_argument(
+    '--lr_type',
+    default='multi_step',
+    type=str,
+    help='learning rate decay step')
 
 parser.add_argument(
     '--momentum',
@@ -486,9 +492,11 @@ def main():
         )
 
     # define the learning rate scheduler
-    # we use the linear learning rate here
     #scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lambda step : (1.0-step/args.epochs), last_epoch=-1)
-    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[args.epochs//4, args.epochs//2, args.epochs//4*3], gamma=0.1)
+    if args.lr_type=='multi_step':
+        scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[args.epochs//4, args.epochs//2, args.epochs//4*3], gamma=0.1)
+    elif args.lr_type=='cos':
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer=optimizer, T_max=20, eta_min=0.0004)
     start_epoch = 0
     best_top1_acc= 0
 
