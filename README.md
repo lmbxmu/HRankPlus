@@ -89,7 +89,28 @@ With the compress rate, our training module(evaluate_cifar.py and evaluate.py) c
 
 After training, totally four files can be found in the `job_dir`, including best model, final model, config file and logger file.
 
-We provide our pruned models and their corresponding training loggers and configuration files [here](https://drive.google.com/drive/folders/1SBtHaxDHi3TT9OJIqUEcSig02GHi6vle?usp=sharing).
+### Experimental Results
+
+We provide our pruned models in the paper and their corresponding training loggers and configuration files below.
+
+(The percentages in parentheses indicate the pruned proportion)
+
+##### CIFAR-10
+
+| Full Model | Params        | Flops          |  Accuracy | Pruned Model                                                 |
+|:----------:|:-------------:|:--------------:|:--------:|:------------------------------------------------------------:|
+| VGG-16-BN      | 2.76M(81.6%) | 131.17M(58.1%) | 93.73%   | [record1](https://drive.google.com/drive/folders/1iTfZt6bWN9RsoYYv9JHOia0EOEB5vxSp?usp=sharing) |
+| VGG-16-BN      | 2.50M(83.3%) | 104.78M(66.6%) | 93.56%   | [record2](https://drive.google.com/drive/folders/1guvmJ97al7dDE7pQ2gcYMpG4ASQyu2rK?usp=sharing) |
+| VGG-16-BN      | 1.90M(87.3%) | 66.95M(78.6%) | 93.10%   | [record3](https://drive.google.com/drive/folders/1NWssBVcGJs_d72B89A7vdIzhaDC0zvUX?usp=sharing) |
+| ResNet-56   | 0.66M(22.3%) | 90.35M(28.0%) |  93.85%   | [record1](https://drive.google.com/drive/folders/1sfArXzP1iKtBjGMjXXL7GpcgNPjBjRjy?usp=sharing) |
+| ResNet-56   | 0.48M(42.8%) | 65.94M(47.4%) | 93.57%   | [record3](https://drive.google.com/drive/folders/12Z21U0eUOQSRHde0Nk7TUwgt0i8gCpTm?usp=sharing) |
+| ResNet-56   | 0.26M(69.0%) | 31.20M(75.1%) | 91.91%   | [record4](https://drive.google.com/drive/folders/1b8VZfr9X7vtNk2p3waPsb6hlnJz_jcXk?usp=sharing) |
+| GoogLeNet  | 2.85M(53.5%) | 649.19M(57.2%) | 95.04%   | [record1](https://drive.google.com/drive/folders/1fcoRYP3lxSXxBsZtjl8tEJIKZKebJhEC?usp=sharing) |
+| GoogLeNet  | 2.09M(65.8%) | 395.42M(73.9%) | 94.70%   | [record2](https://drive.google.com/drive/folders/1zP8iKwWf7JQTie2E_M9p0oxApr52iC2C?usp=sharing) |
+| DenseNet-40  | 0.62M(40.1%) | 173.39M(38.5%) | 94.51%   | [record1](https://drive.google.com/drive/folders/1gCOD7MCyjqY7JYKD_WzznRQN-A85kEqk?usp=sharing) |
+| DenseNet-40  | 0.45M(56.5%) | 133.17M(52.7%) | 93.91%   | [record3](https://drive.google.com/drive/folders/1s7iuIGKR19-z7fqL54BlszplMmojAP7s?usp=sharing) |
+| DenseNet-40  | 0.39M(61.9%) | 113.08M(59.9%) | 93.66%   | [record2](https://drive.google.com/drive/folders/14bP40bwViUIy38z_x0isdLYnXIsO0S2H?usp=sharing) |
+
 
 ## Pre-trained Models 
 
