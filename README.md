@@ -89,6 +89,8 @@ With the compress rate, our training module(evaluate_cifar.py and evaluate.py) c
 
 After training, totally four files can be found in the `job_dir`, including best model, final model, config file and logger file.
 
+We provide our pruned models and their corresponding training loggers and configuration files [here](https://drive.google.com/drive/folders/1SBtHaxDHi3TT9OJIqUEcSig02GHi6vle?usp=sharing).
+
 ## Pre-trained Models 
 
 Additionally, we provide the pre-trained models used in our experiments. 
