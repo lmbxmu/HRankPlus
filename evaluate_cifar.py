@@ -2,7 +2,6 @@
 import os
 import numpy as np
 import time, datetime
-import random
 import argparse
 import copy
 from thop import profile
@@ -95,12 +94,6 @@ parser.add_argument(
     help='pretrain model path')
 
 parser.add_argument(
-    '--random_rule',
-    type=str,
-    default='hrank_pretrain',
-    help='pretrain rule')
-
-parser.add_argument(
     '--compress_rate',
     type=str,
     default=None,
@@ -118,9 +111,7 @@ utils.record_config(args)
 logger = utils.get_logger(os.path.join(args.job_dir, 'logger.log'))
 
 
-def load_vgg_model(model, oristate_dict, random_rule):
-    logger.info('random rule: ' + random_rule)
-
+def load_vgg_model(model, oristate_dict):
     state_dict = model.state_dict()
     last_select_index = None #Conv index selected in the previous layer
 
@@ -135,20 +126,14 @@ def load_vgg_model(model, oristate_dict, random_rule):
             orifilter_num = oriweight.size(0)
             currentfilter_num = curweight.size(0)
 
-            if orifilter_num != currentfilter_num and (random_rule == 'random_pretrain' or random_rule == 'hrank_pretrain'):
-
-                select_num = currentfilter_num
-                if random_rule == 'random_pretrain':
-                    select_index = random.sample(range(0, orifilter_num-1), select_num)
-                    select_index.sort()
-                else:
-                    prefix = "/home/zyc/HRank_Plus/rank_conv/vgg_16_bn/rank_conv"
-                    subfix = ".npy"
-                    cov_id = cnt
-                    logger.info('loading rank from: ' + prefix + str(cov_id) + subfix)
-                    rank = np.load(prefix + str(cov_id) + subfix)
-                    select_index = np.argsort(rank)[orifilter_num-currentfilter_num:]  # preserved filter id
-                    select_index.sort()
+            if orifilter_num != currentfilter_num:
+                prefix = "/home/zyc/HRank_Plus/rank_conv/vgg_16_bn/rank_conv"
+                subfix = ".npy"
+                cov_id = cnt
+                logger.info('loading rank from: ' + prefix + str(cov_id) + subfix)
+                rank = np.load(prefix + str(cov_id) + subfix)
+                select_index = np.argsort(rank)[orifilter_num-currentfilter_num:]  # preserved filter id
+                select_index.sort()
 
                 if last_select_index is not None:
                     for index_i, i in enumerate(select_index):
@@ -173,7 +158,7 @@ def load_vgg_model(model, oristate_dict, random_rule):
 
     model.load_state_dict(state_dict)
 
-def load_resnet_model(model, oristate_dict, random_rule, layer):
+def load_resnet_model(model, oristate_dict, layer):
     cfg = {
         56: [9, 9, 9],
         110: [18, 18, 18],
@@ -208,18 +193,11 @@ def load_resnet_model(model, oristate_dict, random_rule, layer):
                 orifilter_num = oriweight.size(0)
                 currentfilter_num = curweight.size(0)
 
-                if orifilter_num != currentfilter_num and (
-                        random_rule == 'random_pretrain' or random_rule == 'hrank_pretrain'):
-
-                    select_num = currentfilter_num
-                    if random_rule == 'random_pretrain':
-                        select_index = random.sample(range(0, orifilter_num - 1), select_num)
-                        select_index.sort()
-                    else:
-                        logger.info('loading rank from: ' + prefix + str(cov_id) + subfix)
-                        rank = np.load(prefix + str(cov_id) + subfix)
-                        select_index = np.argsort(rank)[orifilter_num - currentfilter_num:]  # preserved filter id
-                        select_index.sort()
+                if orifilter_num != currentfilter_num:
+                    logger.info('loading rank from: ' + prefix + str(cov_id) + subfix)
+                    rank = np.load(prefix + str(cov_id) + subfix)
+                    select_index = np.argsort(rank)[orifilter_num - currentfilter_num:]  # preserved filter id
+                    select_index.sort()
 
                     if last_select_index is not None:
                         for index_i, i in enumerate(select_index):
@@ -258,7 +236,7 @@ def load_resnet_model(model, oristate_dict, random_rule, layer):
 
     model.load_state_dict(state_dict)
 
-def load_google_model(model, oristate_dict, random_rule):
+def load_google_model(model, oristate_dict):
     state_dict = model.state_dict()
 
     filters = [
@@ -284,7 +262,6 @@ def load_google_model(model, oristate_dict, random_rule):
     for name, module in model.named_modules():
         if isinstance(module, Inception):
 
-            #logger.info(name)
             cnt += 1
             cov_id = cnt
 
@@ -302,13 +279,9 @@ def load_google_model(model, oristate_dict, random_rule):
                 '.branch5x5.3',
             ]  # the index of sketch filter weight
             honey_bn_index = [
-                #'.branch1x1.1',
-                #'.branch3x3.1',
                 '.branch3x3.4',
-                #'.branch5x5.1',
                 '.branch5x5.4',
                 '.branch5x5.7',
-                #'.branch_pool.2',
             ]  # the index of sketch bn weight
 
             for bn_index in honey_bn_index:
@@ -336,15 +309,8 @@ def load_google_model(model, oristate_dict, random_rule):
                 orifilter_num = oriweight.size(1)
                 currentfilter_num = curweight.size(1)
 
-                if orifilter_num != currentfilter_num and (
-                        random_rule == 'random_pretrain' or random_rule == 'hrank_pretrain'):
-
-                    select_num = currentfilter_num
-                    if random_rule == 'random_pretrain':
-                        select_index = random.sample(range(0, orifilter_num), select_num)
-                        select_index.sort()
-                    else:
-                        select_index = last_select_index
+                if orifilter_num != currentfilter_num:
+                    select_index = last_select_index
                 else:
                     select_index = list(range(0, orifilter_num))
 
@@ -381,18 +347,11 @@ def load_google_model(model, oristate_dict, random_rule):
                 orifilter_num = oriweight.size(0)
                 currentfilter_num = curweight.size(0)
 
-                if orifilter_num != currentfilter_num and (
-                        random_rule == 'random_pretrain' or random_rule == 'hrank_pretrain'):
-
-                    select_num = currentfilter_num
-                    if random_rule == 'random_pretrain':
-                        select_index = random.sample(range(0, orifilter_num), select_num)
-                        select_index.sort()
-                    else:
-                        logger.info('loading rank from: ' + prefix + str(cov_id) + branch_name + subfix)
-                        rank = np.load(prefix + str(cov_id)  + branch_name + subfix)
-                        select_index = np.argsort(rank)[orifilter_num - currentfilter_num:]  # preserved filter id
-                        select_index.sort()
+                if orifilter_num != currentfilter_num:
+                    logger.info('loading rank from: ' + prefix + str(cov_id) + branch_name + subfix)
+                    rank = np.load(prefix + str(cov_id)  + branch_name + subfix)
+                    select_index = np.argsort(rank)[orifilter_num - currentfilter_num:]  # preserved filter id
+                    select_index.sort()
                 else:
                     select_index = list(range(0, orifilter_num))
 
@@ -426,15 +385,8 @@ def load_google_model(model, oristate_dict, random_rule):
                 orifilter_num = oriweight.size(1)
                 currentfilter_num = curweight.size(1)
 
-                if orifilter_num != currentfilter_num and (
-                        random_rule == 'random_pretrain' or random_rule == 'hrank_pretrain'):
-
-                    select_num = currentfilter_num
-                    if random_rule == 'random_pretrain':
-                        select_index = random.sample(range(0, orifilter_num), select_num)
-                        select_index.sort()
-                    else:
-                        select_index = last_select_index
+                if orifilter_num != currentfilter_num:
+                    select_index = last_select_index
                 else:
                     select_index = range(0, orifilter_num)
 
@@ -443,18 +395,11 @@ def load_google_model(model, oristate_dict, random_rule):
 
                 select_index_1 = copy.deepcopy(select_index)
 
-                if orifilter_num != currentfilter_num and (
-                        random_rule == 'random_pretrain' or random_rule == 'hrank_pretrain'):
-
-                    select_num = currentfilter_num
-                    if random_rule == 'random_pretrain':
-                        select_index = random.sample(range(0, orifilter_num - 1), select_num)
-                        select_index.sort()
-                    else:
-                        logger.info('loading rank from: ' + prefix + str(cov_id) + branch_name + subfix)
-                        rank = np.load(prefix + str(cov_id) + branch_name + subfix)
-                        select_index = np.argsort(rank)[orifilter_num - currentfilter_num:]  # preserved filter id
-                        select_index.sort()
+                if orifilter_num != currentfilter_num:
+                    logger.info('loading rank from: ' + prefix + str(cov_id) + branch_name + subfix)
+                    rank = np.load(prefix + str(cov_id) + branch_name + subfix)
+                    select_index = np.argsort(rank)[orifilter_num - currentfilter_num:]  # preserved filter id
+                    select_index.sort()
 
                 else:
                     select_index = list(range(0, orifilter_num))
@@ -490,17 +435,10 @@ def load_google_model(model, oristate_dict, random_rule):
                 orifilter_num = oriweight.size(0)
                 currentfilter_num = curweight.size(0)
 
-                if orifilter_num != currentfilter_num and (
-                        random_rule == 'random_pretrain' or random_rule == 'hrank_pretrain'):
-
-                    select_num = currentfilter_num
-                    if random_rule == 'random_pretrain':
-                        select_index = random.sample(range(0, orifilter_num - 1), select_num)
-                        select_index.sort()
-                    else:
-                        rank = np.load(prefix + str(cov_id) + subfix)
-                        select_index = np.argsort(rank)[orifilter_num - currentfilter_num:]  # preserved filter id
-                        select_index.sort()
+                if orifilter_num != currentfilter_num:
+                    rank = np.load(prefix + str(cov_id) + subfix)
+                    select_index = np.argsort(rank)[orifilter_num - currentfilter_num:]  # preserved filter id
+                    select_index.sort()
 
                     cur_last_select_index = select_index[:]
 
@@ -530,9 +468,7 @@ def load_google_model(model, oristate_dict, random_rule):
 
     model.load_state_dict(state_dict)
 
-def load_densenet_model(model, oristate_dict, random_rule):
-    #logger.info(ckpt['state_dict'])
-    logger.info('random rule: '+ random_rule)
+def load_densenet_model(model, oristate_dict):
 
     state_dict = model.state_dict()
     last_select_index = [] #Conv index selected in the previous layer
@@ -551,17 +487,11 @@ def load_densenet_model(model, oristate_dict, random_rule):
             orifilter_num = oriweight.size(0)
             currentfilter_num = curweight.size(0)
 
-            if orifilter_num != currentfilter_num and (random_rule == 'random_pretrain' or random_rule == 'hrank_pretrain'):
-
-                select_num = currentfilter_num
-                if random_rule == 'random_pretrain':
-                    select_index = random.sample(range(0, orifilter_num-1), select_num)
-                    select_index.sort()
-                else:
-                    logger.info('loading rank from: ' + prefix + str(cov_id) + subfix)
-                    rank = np.load(prefix + str(cov_id) + subfix)
-                    select_index = list(np.argsort(rank)[orifilter_num-currentfilter_num:])  # preserved filter id
-                    select_index.sort()
+            if orifilter_num != currentfilter_num:
+                logger.info('loading rank from: ' + prefix + str(cov_id) + subfix)
+                rank = np.load(prefix + str(cov_id) + subfix)
+                select_index = list(np.argsort(rank)[orifilter_num-currentfilter_num:])  # preserved filter id
+                select_index.sort()
 
                 if last_select_index is not None:
                     for index_i, i in enumerate(select_index):
@@ -669,15 +599,15 @@ def main():
             oristate_dict = origin_model.state_dict()
 
             if args.arch == 'googlenet':
-                load_google_model(model, oristate_dict, args.random_rule)
+                load_google_model(model, oristate_dict)
             elif args.arch == 'vgg_16_bn':
-                load_vgg_model(model, oristate_dict, args.random_rule)
+                load_vgg_model(model, oristate_dict)
             elif args.arch == 'resnet_56':
-                load_resnet_model(model, oristate_dict, args.random_rule, 56)
+                load_resnet_model(model, oristate_dict, 56)
             elif args.arch == 'resnet_110':
-                load_resnet_model(model, oristate_dict, args.random_rule, 110)
+                load_resnet_model(model, oristate_dict, 110)
             elif args.arch == 'densenet_40':
-                load_densenet_model(model, oristate_dict, args.random_rule)
+                load_densenet_model(model, oristate_dict)
             else:
                 raise
         else:
