@@ -102,6 +102,12 @@ parser.add_argument(
     help='pretrain model path')
 
 parser.add_argument(
+    '--rank_conv_prefix',
+    type=str,
+    default='',
+    help='pretrain model path')
+
+parser.add_argument(
     '--compress_rate',
     type=str,
     default=None,
@@ -152,7 +158,7 @@ def load_resnet_model(model, oristate_dict):
 
     all_honey_conv_weight = []
 
-    prefix = "/home/zyc/HRank_Plus/rank_conv/resnet_50/rank_conv"
+    prefix = args.rank_conv_prefix
     subfix = ".npy"
     cnt=1
 
@@ -258,13 +264,12 @@ def load_mobilenetv2_model(model, oristate_dict):
 
     all_honey_conv_weight = []
 
-    prefix = "/home/zyc/HRank_Plus/rank_conv/mobilenet_v2/rank_conv"
+    prefix = args.rank_conv_prefix
     subfix = ".npy"
 
     layer_cnt=1
     conv_cnt=1
     cfg=[1,2,3,4,3,3,1,1]
-    #cfg_er=[1,6,6,6,6,6,6]
     for layer, num in enumerate(cfg):
         if layer_cnt==1:
             conv_id=[0,3]
@@ -288,10 +293,8 @@ def load_mobilenetv2_model(model, oristate_dict):
                 curweight = state_dict[name_base+conv_weight_name]
                 orifilter_num = oriweight.size(0)
                 currentfilter_num = curweight.size(0)
-                logger.info(conv_weight_name)
 
                 if orifilter_num != currentfilter_num:
-                    print(conv_weight_name)
                     logger.info('loading rank from: ' + prefix + str(conv_cnt) + subfix)
                     rank = np.load(prefix + str(conv_cnt) + subfix)
                     select_index = np.argsort(rank)[orifilter_num - currentfilter_num:]  # preserved filter id
@@ -340,18 +343,15 @@ def load_mobilenetv1_model(model, oristate_dict):
     state_dict = model.state_dict()
 
     last_select_index = None
-
     all_honey_conv_weight = []
 
-    prefix = "/home/zyc/HRank_Plus/rank_conv/mobilenet_v1/rank_conv"
+    prefix = args.rank_conv_prefix
     subfix = ".npy"
 
     conv_cnt=1
     for layer_cnt in range(13):
         conv_id=[0,3]
-
         block_name = 'features.'+str(layer_cnt)+'.'
-
         for l in conv_id:
             conv_cnt += 1
             conv_name = block_name+str(l)
@@ -488,22 +488,6 @@ def main():
     criterion_smooth = utils.CrossEntropyLabelSmooth(CLASSES, args.label_smooth)
     criterion_smooth = criterion_smooth.cuda()
 
-    '''# split the weight parameter that need weight decay
-    all_parameters = model.parameters()
-    weight_parameters = []
-    for pname, p in model.named_parameters():
-        if 'fc' in pname or 'conv' in pname:
-            weight_parameters.append(p)
-    weight_parameters_id = list(map(id, weight_parameters))
-    other_parameters = list(filter(lambda p: id(p) not in weight_parameters_id, all_parameters))
-
-    # define the optimizer
-    optimizer = torch.optim.SGD(
-        [{'params' : other_parameters},
-        {'params' : weight_parameters, 'weight_decay' : args.weight_decay}],
-        args.learning_rate,
-        momentum=args.momentum,
-        )'''
     optimizer = torch.optim.SGD(model.parameters(), args.learning_rate, momentum=args.momentum)
 
     '''# define the learning rate scheduler
@@ -545,46 +529,7 @@ def main():
         else:
             logger.info('training from scratch')
 
-    # adjust the learning rate according to the checkpoint
-    #for epoch in range(start_epoch):
-    #    scheduler.step()
-
-
     # load training data
-
-    '''traindir = os.path.join(args.data_dir, 'ILSVRC2012_img_train')
-    valdir = os.path.join(args.data_dir, 'val')
-    normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                     std=[0.229, 0.224, 0.225])
-
-    # data augmentation
-    crop_scale = 0.08
-    lighting_param = 0.1
-    train_transforms = transforms.Compose([
-        transforms.RandomResizedCrop(224, scale=(crop_scale, 1.0)),
-        utils.Lighting(lighting_param),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        normalize])
-
-    train_dataset = datasets.ImageFolder(
-        traindir,
-        transform=train_transforms)
-
-    train_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=args.batch_size, shuffle=True,
-        num_workers=args.workers, pin_memory=True)
-
-    # load validation data
-    val_loader = torch.utils.data.DataLoader(
-        datasets.ImageFolder(valdir, transforms.Compose([
-            transforms.Resize(256),
-            transforms.CenterCrop(224),
-            transforms.ToTensor(),
-            normalize,
-        ])),
-        batch_size=args.batch_size, shuffle=False,
-        num_workers=args.workers, pin_memory=True)'''
     print('==> Preparing data..')
     def get_data_set(type='train'):
         if type == 'train':
@@ -628,27 +573,15 @@ def train(epoch, train_loader, model, criterion, optimizer):
     top1 = utils.AverageMeter('Acc@1', ':6.2f')
     top5 = utils.AverageMeter('Acc@5', ':6.2f')
 
-    '''progress = ProgressMeter(
-        len(train_loader),
-        [batch_time, data_time, losses, top1, top5],
-        prefix="Epoch: [{}]".format(epoch))#'''
-
     model.train()
     end = time.time()
     #scheduler.step()
 
-    #for param_group in optimizer.param_groups:
-    #    cur_lr = param_group['lr']
-    #logger.info('learning_rate: ' + str(cur_lr))
-
     num_iter = train_loader._size // args.batch_size
-    #for i, (images, target) in enumerate(train_loader):
     for batch_idx, batch_data in enumerate(train_loader):
         images = batch_data[0]['data'].cuda()
         targets = batch_data[0]['label'].squeeze().long().cuda()
         data_time.update(time.time() - end)
-        #images = images.cuda()
-        #target = target.cuda()
 
         adjust_learning_rate(optimizer, epoch, batch_idx, num_iter)
 
@@ -679,7 +612,6 @@ def train(epoch, train_loader, model, criterion, optimizer):
                 'Prec@1(1,5) {top1.avg:.2f}, {top5.avg:.2f}'.format(
                     epoch, batch_idx, num_iter, loss=losses,
                     top1=top1, top5=top5))
-            #progress.display(i)
 
     return losses.avg, top1.avg, top5.avg
 
@@ -688,10 +620,6 @@ def validate(epoch, val_loader, model, criterion, args):
     losses = utils.AverageMeter('Loss', ':.4e')
     top1 = utils.AverageMeter('Acc@1', ':6.2f')
     top5 = utils.AverageMeter('Acc@5', ':6.2f')
-    '''progress = ProgressMeter(
-        len(val_loader),
-        [batch_time, losses, top1, top5],
-        prefix='Test: ')#'''
 
     num_iter = val_loader._size // args.batch_size
     model.eval()
@@ -700,8 +628,6 @@ def validate(epoch, val_loader, model, criterion, args):
         for batch_idx, batch_data in enumerate(val_loader):
             images = batch_data[0]['data'].cuda()
             targets = batch_data[0]['label'].squeeze().long().cuda()
-            #images = images.cuda()
-            #target = target.cuda()
 
             # compute output
             logits = model(images)
@@ -725,7 +651,6 @@ def validate(epoch, val_loader, model, criterion, args):
                     'Prec@1(1,5) {top1.avg:.2f}, {top5.avg:.2f}'.format(
                         epoch, batch_idx, num_iter, loss=losses,
                         top1=top1, top5=top5))
-                #progress.display(i)
 
         logger.info(' * Acc@1 {top1.avg:.3f} Acc@5 {top5.avg:.3f}'
                     .format(top1=top1, top5=top5))

@@ -664,11 +664,6 @@ def train(epoch, train_loader, model, criterion, optimizer, scheduler):
     top1 = utils.AverageMeter('Acc@1', ':6.2f')
     top5 = utils.AverageMeter('Acc@5', ':6.2f')
 
-    '''progress = utils.ProgressMeter(
-        len(train_loader),
-        [batch_time, data_time, losses, top1, top5],
-        prefix="Epoch: [{}]".format(epoch))#'''
-
     model.train()
     end = time.time()
     scheduler.step()
@@ -710,7 +705,6 @@ def train(epoch, train_loader, model, criterion, optimizer, scheduler):
                 'Prec@1(1,5) {top1.avg:.2f}, {top5.avg:.2f}'.format(
                     epoch, i, num_iter, loss=losses,
                     top1=top1, top5=top5))
-            #progress.display(i)
 
     return losses.avg, top1.avg, top5.avg
 
@@ -719,10 +713,6 @@ def validate(epoch, val_loader, model, criterion, args):
     losses = utils.AverageMeter('Loss', ':.4e')
     top1 = utils.AverageMeter('Acc@1', ':6.2f')
     top5 = utils.AverageMeter('Acc@5', ':6.2f')
-    '''progress = utils.ProgressMeter(
-        len(val_loader),
-        [batch_time, losses, top1, top5],
-        prefix='Test: ')#'''
 
     # switch to evaluation mode
     model.eval()
@@ -746,9 +736,6 @@ def validate(epoch, val_loader, model, criterion, args):
             # measure elapsed time
             batch_time.update(time.time() - end)
             end = time.time()
-
-            #if i % print_freq == 0:
-                #progress.display(i)
 
         logger.info(' * Acc@1 {top1.avg:.3f} Acc@5 {top5.avg:.3f}'
               .format(top1=top1, top5=top5))
