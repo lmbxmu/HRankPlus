@@ -114,8 +114,14 @@ parser.add_argument(
     metavar='N',
     help='number of data loading workers (default: 4)')
 
+parser.add_argument(
+    '--gpu',
+    type=str,
+    default='0',
+    help='Select gpu to use')
+
 args = parser.parse_args()
-#os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
+os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
 
 CLASSES = 1000
 print_freq = (64*50)//args.batch_size
@@ -126,6 +132,11 @@ if not os.path.isdir(args.job_dir):
 utils.record_config(args)
 logger = utils.get_logger(os.path.join(args.job_dir, 'logger.log'))
 
+#use for loading pretrain model
+if len(args.gpu)>1:
+    name_base='module.'
+else:
+    name_base=''
 
 def load_resnet_model(model, oristate_dict):
     cfg = {'resnet18': [2, 2, 2, 2],
@@ -148,7 +159,7 @@ def load_resnet_model(model, oristate_dict):
     conv_weight_name = 'conv1.weight'
     all_honey_conv_weight.append(conv_weight_name)
     oriweight = oristate_dict[conv_weight_name]
-    curweight = state_dict[conv_weight_name]
+    curweight = state_dict[name_base+conv_weight_name]
     orifilter_num = oriweight.size(0)
     currentfilter_num = curweight.size(0)
 
@@ -159,7 +170,7 @@ def load_resnet_model(model, oristate_dict):
         select_index.sort()
 
         for index_i, i in enumerate(select_index):
-                state_dict[conv_weight_name][index_i] = \
+                state_dict[name_base+conv_weight_name][index_i] = \
                     oristate_dict[conv_weight_name][i]
 
         last_select_index = select_index
@@ -188,7 +199,7 @@ def load_resnet_model(model, oristate_dict):
                 conv_weight_name = conv_name + '.weight'
                 all_honey_conv_weight.append(conv_weight_name)
                 oriweight = oristate_dict[conv_weight_name]
-                curweight = state_dict[conv_weight_name]
+                curweight = state_dict[name_base+conv_weight_name]
                 orifilter_num = oriweight.size(0)
                 currentfilter_num = curweight.size(0)
 
@@ -201,11 +212,11 @@ def load_resnet_model(model, oristate_dict):
                     if last_select_index is not None:
                         for index_i, i in enumerate(select_index):
                             for index_j, j in enumerate(last_select_index):
-                                state_dict[conv_weight_name][index_i][index_j] = \
+                                state_dict[name_base+conv_weight_name][index_i][index_j] = \
                                     oristate_dict[conv_weight_name][i][j]
                     else:
                         for index_i, i in enumerate(select_index):
-                            state_dict[conv_weight_name][index_i] = \
+                            state_dict[name_base+conv_weight_name][index_i] = \
                                 oristate_dict[conv_weight_name][i]
 
                     if record_last:
@@ -214,28 +225,28 @@ def load_resnet_model(model, oristate_dict):
                 elif last_select_index is not None:
                     for index_i in range(orifilter_num):
                         for index_j, j in enumerate(last_select_index):
-                            state_dict[conv_weight_name][index_i][index_j] = \
+                            state_dict[name_base+conv_weight_name][index_i][index_j] = \
                                 oristate_dict[conv_weight_name][index_i][j]
                     if record_last:
                         last_select_index = None
 
                 else:
-                    state_dict[conv_weight_name] = oriweight
+                    state_dict[name_base+conv_weight_name] = oriweight
                     if record_last:
                         last_select_index = None
 
                 cnt+=1
 
-
     for name, module in model.named_modules():
+        name = name.replace('module.', '')
         if isinstance(module, nn.Conv2d):
             conv_name = name + '.weight'
             if conv_name not in all_honey_conv_weight:
-                state_dict[conv_name] = oristate_dict[conv_name]
+                state_dict[name_base+conv_name] = oristate_dict[conv_name]
 
         elif isinstance(module, nn.Linear):
-            state_dict[name + '.weight'] = oristate_dict[name + '.weight']
-            state_dict[name + '.bias'] = oristate_dict[name + '.bias']
+            state_dict[name_base+name + '.weight'] = oristate_dict[name + '.weight']
+            state_dict[name_base+name + '.bias'] = oristate_dict[name + '.bias']
 
     model.load_state_dict(state_dict)
 
@@ -274,7 +285,7 @@ def load_mobilenetv2_model(model, oristate_dict):
                 conv_weight_name = conv_name + '.weight'
                 all_honey_conv_weight.append(conv_weight_name)
                 oriweight = oristate_dict[conv_weight_name]
-                curweight = state_dict[conv_weight_name]
+                curweight = state_dict[name_base+conv_weight_name]
                 orifilter_num = oriweight.size(0)
                 currentfilter_num = curweight.size(0)
                 logger.info(conv_weight_name)
@@ -289,11 +300,11 @@ def load_mobilenetv2_model(model, oristate_dict):
                     if (l==6 or (l==0 and layer_cnt!=1) or (l==3 and layer_cnt==1)) and last_select_index is not None:
                         for index_i, i in enumerate(select_index):
                             for index_j, j in enumerate(last_select_index):
-                                state_dict[conv_weight_name][index_i][index_j] = \
+                                state_dict[name_base+conv_weight_name][index_i][index_j] = \
                                     oristate_dict[conv_weight_name][i][j]
                     else:
                         for index_i, i in enumerate(select_index):
-                            state_dict[conv_weight_name][index_i] = \
+                            state_dict[name_base+conv_weight_name][index_i] = \
                                 oristate_dict[conv_weight_name][i]
 
                     last_select_index = select_index
@@ -301,25 +312,26 @@ def load_mobilenetv2_model(model, oristate_dict):
                 elif  (l==6 or (l==0 and layer_cnt!=1) or (l==3 and layer_cnt==1)) and last_select_index is not None:
                     for index_i in range(orifilter_num):
                         for index_j, j in enumerate(last_select_index):
-                            state_dict[conv_weight_name][index_i][index_j] = \
+                            state_dict[name_base+conv_weight_name][index_i][index_j] = \
                                 oristate_dict[conv_weight_name][index_i][j]
                     last_select_index = None
 
                 else:
-                    state_dict[conv_weight_name] = oriweight
+                    state_dict[name_base+conv_weight_name] = oriweight
                     last_select_index = None
 
             layer_cnt+=1
 
     for name, module in model.named_modules():
+        name = name.replace('module.', '')
         if isinstance(module, nn.Conv2d):
             conv_name = name + '.weight'
             if conv_name not in all_honey_conv_weight:
-                state_dict[conv_name] = oristate_dict[conv_name]
+                state_dict[name_base+conv_name] = oristate_dict[conv_name]
 
         elif isinstance(module, nn.Linear):
-            state_dict[name + '.weight'] = oristate_dict[name + '.weight']
-            state_dict[name + '.bias'] = oristate_dict[name + '.bias']
+            state_dict[name_base+name + '.weight'] = oristate_dict[name + '.weight']
+            state_dict[name_base+name + '.bias'] = oristate_dict[name + '.bias']
 
     model.load_state_dict(state_dict)
 
@@ -346,7 +358,7 @@ def load_mobilenetv1_model(model, oristate_dict):
             conv_weight_name = conv_name + '.weight'
             all_honey_conv_weight.append(conv_weight_name)
             oriweight = oristate_dict[conv_weight_name]
-            curweight = state_dict[conv_weight_name]
+            curweight = state_dict[name_base+conv_weight_name]
             orifilter_num = oriweight.size(0)
             currentfilter_num = curweight.size(0)
 
@@ -359,11 +371,11 @@ def load_mobilenetv1_model(model, oristate_dict):
                 if l==3 and last_select_index is not None:
                     for index_i, i in enumerate(select_index):
                         for index_j, j in enumerate(last_select_index):
-                            state_dict[conv_weight_name][index_i][index_j] = \
+                            state_dict[name_base+conv_weight_name][index_i][index_j] = \
                                 oristate_dict[conv_weight_name][i][j]
                 else:
                     for index_i, i in enumerate(select_index):
-                        state_dict[conv_weight_name][index_i] = \
+                        state_dict[name_base+conv_weight_name][index_i] = \
                             oristate_dict[conv_weight_name][i]
 
                 last_select_index = select_index
@@ -371,23 +383,24 @@ def load_mobilenetv1_model(model, oristate_dict):
             elif l==3 and last_select_index is not None:
                 for index_i in range(orifilter_num):
                     for index_j, j in enumerate(last_select_index):
-                        state_dict[conv_weight_name][index_i][index_j] = \
+                        state_dict[name_base+conv_weight_name][index_i][index_j] = \
                             oristate_dict[conv_weight_name][index_i][j]
                 last_select_index = None
 
             else:
-                state_dict[conv_weight_name] = oriweight
+                state_dict[name_base+conv_weight_name] = oriweight
                 last_select_index = None
 
     for name, module in model.named_modules():
+        name = name.replace('module.', '')
         if isinstance(module, nn.Conv2d):
             conv_name = name + '.weight'
             if conv_name not in all_honey_conv_weight:
-                state_dict[conv_name] = oristate_dict[conv_name]
+                state_dict[name_base+conv_name] = oristate_dict[conv_name]
 
         elif isinstance(module, nn.Linear):
-            state_dict[name + '.weight'] = oristate_dict[name + '.weight']
-            state_dict[name + '.bias'] = oristate_dict[name + '.bias']
+            state_dict[name_base+name + '.weight'] = oristate_dict[name + '.weight']
+            state_dict[name_base+name + '.bias'] = oristate_dict[name + '.bias']
 
     model.load_state_dict(state_dict)
 
@@ -407,6 +420,7 @@ def adjust_learning_rate(optimizer, epoch, step, len_iter):
         step = 1
         decay = 0.96
         lr = args.learning_rate * (decay ** (epoch // step))
+
     elif args.lr_type == 'fixed':
         lr = args.learning_rate
     else:
@@ -455,7 +469,6 @@ def main():
     logger.info('==> Building model..')
     model = eval(args.arch)(compress_rate=compress_rate).cuda()
     logger.info(model)
-    #model = nn.DataParallel(model)
 
     # calculate model size
     input_image_size = 224
@@ -464,12 +477,18 @@ def main():
     logger.info('Params: %.2f' % (params))
     logger.info('Flops: %.2f' % (flops))
 
+    if len(args.gpu) > 1:
+        device_id = []
+        for i in range((len(args.gpu) + 1) // 2):
+            device_id.append(i)
+        model = nn.DataParallel(model, device_ids=device_id).cuda()
+
     criterion = nn.CrossEntropyLoss()
     criterion = criterion.cuda()
     criterion_smooth = utils.CrossEntropyLabelSmooth(CLASSES, args.label_smooth)
     criterion_smooth = criterion_smooth.cuda()
 
-    # split the weight parameter that need weight decay
+    '''# split the weight parameter that need weight decay
     all_parameters = model.parameters()
     weight_parameters = []
     for pname, p in model.named_parameters():
@@ -484,7 +503,8 @@ def main():
         {'params' : weight_parameters, 'weight_decay' : args.weight_decay}],
         args.learning_rate,
         momentum=args.momentum,
-        )
+        )'''
+    optimizer = torch.optim.SGD(model.parameters(), args.learning_rate, momentum=args.momentum)
 
     '''# define the learning rate scheduler
     #scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lambda step : (1.0-step/args.epochs), last_epoch=-1)
@@ -629,6 +649,8 @@ def train(epoch, train_loader, model, criterion, optimizer):
         data_time.update(time.time() - end)
         #images = images.cuda()
         #target = target.cuda()
+        if batch_idx>5:
+            break
 
         adjust_learning_rate(optimizer, epoch, batch_idx, num_iter)
 
@@ -682,6 +704,9 @@ def validate(epoch, val_loader, model, criterion, args):
             targets = batch_data[0]['label'].squeeze().long().cuda()
             #images = images.cuda()
             #target = target.cuda()
+
+            if batch_idx>5:
+                break
 
             # compute output
             logits = model(images)
