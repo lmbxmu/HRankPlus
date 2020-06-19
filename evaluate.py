@@ -649,8 +649,6 @@ def train(epoch, train_loader, model, criterion, optimizer):
         data_time.update(time.time() - end)
         #images = images.cuda()
         #target = target.cuda()
-        if batch_idx>5:
-            break
 
         adjust_learning_rate(optimizer, epoch, batch_idx, num_iter)
 
@@ -704,9 +702,6 @@ def validate(epoch, val_loader, model, criterion, args):
             targets = batch_data[0]['label'].squeeze().long().cuda()
             #images = images.cuda()
             #target = target.cuda()
-
-            if batch_idx>5:
-                break
 
             # compute output
             logits = model(images)
