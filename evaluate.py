@@ -59,15 +59,15 @@ parser.add_argument(
     default=0.1,
     help='init learning rate')
 
-parser.add_argument(
+'''parser.add_argument(
     '--lr_decay_step',
     default='30,60',
     type=str,
-    help='learning rate decay step')
+    help='learning rate decay step')'''
 
 parser.add_argument(
     '--lr_type',
-    default='multi_step',
+    default='step',
     type=str,
     help='learning rate decay step')
 

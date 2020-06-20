@@ -134,6 +134,8 @@ def load_vgg_model(model, oristate_dict):
     last_select_index = None #Conv index selected in the previous layer
 
     cnt=0
+    prefix = "/home/zyc/HRank_Plus/rank_conv/vgg_16_bn/rank_conv"
+    subfix = ".npy"
     for name, module in model.named_modules():
 
         if isinstance(module, nn.Conv2d):
@@ -145,8 +147,7 @@ def load_vgg_model(model, oristate_dict):
             currentfilter_num = curweight.size(0)
 
             if orifilter_num != currentfilter_num:
-                prefix = "/home/zyc/HRank_Plus/rank_conv/vgg_16_bn/rank_conv"
-                subfix = ".npy"
+
                 cov_id = cnt
                 logger.info('loading rank from: ' + prefix + str(cov_id) + subfix)
                 rank = np.load(prefix + str(cov_id) + subfix)
