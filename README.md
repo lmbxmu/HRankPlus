@@ -1,22 +1,23 @@
+# An extension version of our CVPR 2020, oral: HRank: Filter Pruning using High-Rank Feature Map ([Link](https://128.84.21.199/abs/2002.10179)).
+
 ### We are now releasing this code under the request of many friends. However, we are not sure if this code is stable. Please contact us if you have found any problem, which would be appreciated.
 
 ### In the next two or three months, we will continue to maintain this repository and the pruned models will be released constantly. 
 
 ## Tips
 
-Any problem, please contact the authors via emails: lmbxmu@stu.xmu.edu.cn or ethan.zhangyc@gmail.com, or adding the first author's wechat as friends (id: linmb007 if you are using wechat) for convenient communications. Do not post issues with github as much as possible, just in case that I could not receive the emails from github thus ignore the posted issues.
+Any problem, please contact the authors via emails: lmbxmu@stu.xmu.edu.cn or ethan.zhangyc@gmail.com, or adding the first author's wechat as friends (id: wxid_5kl8ikyeryk622 if you are using wechat) for convenient communications. Do not post issues with github as much as possible, just in case that I could not receive the emails from github thus ignore the posted issues.
 
 
 ## Citation
 If you find HRank useful in your research, please consider citing:
 
 ```
-@inproceedings{lin2020hrank,
-  title={HRank: Filter Pruning using High-Rank Feature Map},
-  author={Lin, Mingbao and Ji, Rongrong and Wang, Yan and Zhang, Yichen and Zhang, Baochang and Tian, Yonghong and Shao, Ling},
-  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
-  pages={1529--1538},
-  year={2020}
+@inproceedings{lin2020hrank,   
+  title     = {HRank: Filter Pruning using High-Rank Feature Map},
+  author    = {Lin, Mingbao and Ji, Rongrong and Wang, Yan and Zhang, Yichen and Zhang, Baochang and Tian, Yonghong and Ling, Shao},
+  booktitle = {Computer Vision and Pattern Recognition (CVPR)},
+  year      = {2020}
 }
 ```
 
@@ -118,7 +119,7 @@ We provide our pruned models in the paper and their corresponding training logge
 | DenseNet-40  | 0.45M(56.5%) | 133.17M(52.7%) | 93.91%(-0.90%)   | [link](https://drive.google.com/drive/folders/1s7iuIGKR19-z7fqL54BlszplMmojAP7s?usp=sharing) |
 | DenseNet-40  | 0.39M(61.9%) | 113.08M(59.9%) | 93.66%(-1.21%)   | [link](https://drive.google.com/drive/folders/14bP40bwViUIy38z_x0isdLYnXIsO0S2H?usp=sharing) |
 
-To varify our model performance, please use the commands below(but please make sure you are using the corresponding compress rate of that model):
+To varify our model performance, please use the commands below(but please make sure you are using the corresponding compress rate in the configuration file of that model):
 
 ```shell
 python evaluate_cifar.py \
