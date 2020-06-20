@@ -4,3 +4,5 @@
 __pycache__
 run.sh
 models/__pycache__
+.gitignore
+evaluate_cifar_ablation.py
