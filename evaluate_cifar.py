@@ -99,8 +99,26 @@ parser.add_argument(
     default=None,
     help='compress rate of each conv')
 
+parser.add_argument(
+    '--test_only',
+    action='store_true',
+    help='whether it is test mode')
+
+parser.add_argument(
+    '--test_model_dir',
+    type=str,
+    default='',
+    help='test model path')
+
+parser.add_argument(
+    '--gpu',
+    type=str,
+    default='0',
+    help='Select gpu to use')
+
 args = parser.parse_args()
 
+os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
 CLASSES = 10
 print_freq = (256*50)//args.batch_size
 
@@ -561,8 +579,34 @@ def main():
     logger.info('Params: %.2f' % (params))
     logger.info('Flops: %.2f' % (flops))
 
+    # load training data
+    transform_train = transforms.Compose([
+        transforms.RandomCrop(32, padding=4),
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+    ])
+    transform_test = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+    ])
+    trainset = torchvision.datasets.CIFAR10(root=args.data_dir, train=True, download=True, transform=transform_train)
+    train_loader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size, shuffle=True, num_workers=2)
+    testset = torchvision.datasets.CIFAR10(root=args.data_dir, train=False, download=True, transform=transform_test)
+    val_loader = torch.utils.data.DataLoader(testset, batch_size=args.batch_size, shuffle=False, num_workers=2)
+
     criterion = nn.CrossEntropyLoss()
     criterion = criterion.cuda()
+
+    if args.test_only:
+        if os.path.isfile(args.test_model_dir):
+            logger.info('loading checkpoint {} ..........'.format(args.test_model_dir))
+            checkpoint = torch.load(args.test_model_dir)
+            model.load_state_dict(checkpoint['state_dict'])
+            valid_obj, valid_top1_acc, valid_top5_acc = validate(0, val_loader, model, criterion, args)
+        else:
+            logger.info('please specify a checkpoint file')
+        return
 
     optimizer = torch.optim.SGD(model.parameters(), lr=args.learning_rate, momentum=args.momentum, weight_decay=args.weight_decay)
     lr_decay_step = list(map(int, args.lr_decay_step.split(',')))
@@ -617,23 +661,6 @@ def main():
     for epoch in range(start_epoch):
         scheduler.step()
 
-    # load training data
-    transform_train = transforms.Compose([
-        transforms.RandomCrop(32, padding=4),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
-    ])
-
-    transform_test = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
-    ])
-
-    trainset = torchvision.datasets.CIFAR10(root=args.data_dir, train=True, download=True, transform=transform_train)
-    train_loader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size, shuffle=True, num_workers=2)
-    testset = torchvision.datasets.CIFAR10(root=args.data_dir, train=False, download=True, transform=transform_test)
-    val_loader = torch.utils.data.DataLoader(testset, batch_size=args.batch_size, shuffle=False, num_workers=2)
 
     # train the model
     epoch = start_epoch

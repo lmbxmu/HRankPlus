@@ -48,27 +48,27 @@ For the ease of reproducibility, we provide the extracted ranks [here](https://d
 ##### 1. CIFAR-10
 
 ```shell
-CUDA_VISIBLE_DEVICES=[gpu_id] \
 python evaluate_cifar.py \
 --data_dir [CIFAR-10 dataset dir] \
 --job_dir ./result/[model name]/[folder name] \
 --arch [model name](vgg_16_bn, resnet_56, resnet_110, googlenet, densenet_40) \
 --use_pretrain \
 --pretrain_dir [pre-trained model dir] \
---compress_rate [compress rate]
+--compress_rate [compress rate] \
+--gpu [gpu_id]
 ```
 
 ##### 2. ImageNet
 
 ```shell
-CUDA_VISIBLE_DEVICES=[gpu_id] \
 python evaluate.py \
 --data_dir [ImageNet dataset dir] \
 --job_dir ./result/[model name]/[folder name] \
 --arch [model name](resnet_50, mobilenet_v1, mobilenet_v2) \
 --use_pretrain \
 --pretrain_dir [pre-trained model dir] \
---compress_rate [compress rate]
+--compress_rate [compress rate] \
+--gpu [gpu_id]
 ```
 
 The following are the examples of compression rate setting for several models: 
@@ -119,6 +119,18 @@ We provide our pruned models in the paper and their corresponding training logge
 | DenseNet-40  | 0.45M(56.5%) | 133.17M(52.7%) | 93.91%(-0.90%)   | [link](https://drive.google.com/drive/folders/1s7iuIGKR19-z7fqL54BlszplMmojAP7s?usp=sharing) |
 | DenseNet-40  | 0.39M(61.9%) | 113.08M(59.9%) | 93.66%(-1.21%)   | [link](https://drive.google.com/drive/folders/14bP40bwViUIy38z_x0isdLYnXIsO0S2H?usp=sharing) |
 
+To varify our model performance, please use the commands below(but please make sure you are using the corresponding compress rate of that model):
+
+```shell
+python evaluate_cifar.py \
+--data_dir [CIFAR-10 dataset dir] \
+--job_dir ./result/[model name]/[folder name] \
+--arch [model name](vgg_16_bn, resnet_56, resnet_110, googlenet, densenet_40) \
+--test_only \
+--test_model_dir [test model dir] \
+--compress_rate [compress rate] \
+--gpu [gpu_id]
+```
 
 ## Pre-trained Models 
 
