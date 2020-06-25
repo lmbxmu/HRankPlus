@@ -121,7 +121,7 @@ We provide our pruned models in the paper and their corresponding training logge
 | DenseNet-40  | 0.45M(56.5%) | 133.17M(52.7%) | 93.91%(-0.90%)   | [link](https://drive.google.com/drive/folders/1s7iuIGKR19-z7fqL54BlszplMmojAP7s?usp=sharing) |
 | DenseNet-40  | 0.39M(61.9%) | 113.08M(59.9%) | 93.66%(-1.21%)   | [link](https://drive.google.com/drive/folders/14bP40bwViUIy38z_x0isdLYnXIsO0S2H?usp=sharing) |
 
-To varify our model performance, please use the commands below(but please make sure you are using the corresponding compress rate in the configuration file of that model):
+To verify our model performance, please use the commands below(but please make sure you are using the corresponding compress rate in the configuration file of that model):
 
 ```shell
 python evaluate_cifar.py \
