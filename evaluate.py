@@ -163,13 +163,13 @@ def load_resnet_model(model, oristate_dict):
            'resnet152': [3, 8, 36, 3]}
 
     state_dict = model.state_dict()
-    pdb.set_trace()
 
     current_cfg = cfg[args.arch]
     last_select_index = None
 
     all_honey_conv_weight = []
 
+    bn_part_name=['.weight','.bias','.running_mean','.running_var']#,'.num_batches_tracked']
     prefix = args.rank_conv_prefix
     subfix = ".npy"
     cnt=1
@@ -188,10 +188,18 @@ def load_resnet_model(model, oristate_dict):
         select_index.sort()
 
         for index_i, i in enumerate(select_index):
-                state_dict[name_base+conv_weight_name][index_i] = \
-                    oristate_dict[conv_weight_name][i]
+            state_dict[name_base+conv_weight_name][index_i] = \
+                oristate_dict[conv_weight_name][i]
+            for bn_part in bn_part_name:
+                state_dict[name_base + 'bn1' + bn_part][index_i] = \
+                    oristate_dict['bn1' + bn_part][i]
 
         last_select_index = select_index
+    else:
+        state_dict[name_base + conv_weight_name] = oriweight
+        for bn_part in bn_part_name:
+            state_dict[name_base + 'bn1' + bn_part] = oristate_dict['bn1'+bn_part]
+    state_dict[name_base + 'bn1' + '.num_batches_tracked'] = oristate_dict['bn1' + '.num_batches_tracked']
 
     cnt+=1
     for layer, num in enumerate(current_cfg):
@@ -208,11 +216,14 @@ def load_resnet_model(model, oristate_dict):
                 record_last=True
                 if k==0 and l==2:
                     conv_name = layer_name + str(k) + '.downsample.0'
+                    bn_name = layer_name + str(k) + '.downsample.1'
                     record_last=False
                 elif k==0 and l==3:
                     conv_name = layer_name + str(k) + '.conv' + str(l)
+                    bn_name = layer_name + str(k) + '.bn' + str(l)
                 else:
                     conv_name = layer_name + str(k) + '.conv' + str(l + 1)
+                    bn_name = layer_name + str(k) + '.bn' + str(l + 1)
 
                 conv_weight_name = conv_name + '.weight'
                 all_honey_conv_weight.append(conv_weight_name)
@@ -232,10 +243,19 @@ def load_resnet_model(model, oristate_dict):
                             for index_j, j in enumerate(last_select_index):
                                 state_dict[name_base+conv_weight_name][index_i][index_j] = \
                                     oristate_dict[conv_weight_name][i][j]
+
+                            for bn_part in bn_part_name:
+                                state_dict[name_base + bn_name + bn_part][index_i] = \
+                                    oristate_dict[bn_name + bn_part][i]
+
                     else:
                         for index_i, i in enumerate(select_index):
                             state_dict[name_base+conv_weight_name][index_i] = \
                                 oristate_dict[conv_weight_name][i]
+
+                            for bn_part in bn_part_name:
+                                state_dict[name_base + bn_name + bn_part][index_i] = \
+                                    oristate_dict[bn_name + bn_part][i]
 
                     if record_last:
                         last_select_index = select_index
@@ -245,14 +265,23 @@ def load_resnet_model(model, oristate_dict):
                         for index_j, j in enumerate(last_select_index):
                             state_dict[name_base+conv_weight_name][index_i][index_j] = \
                                 oristate_dict[conv_weight_name][index_i][j]
+
+                    for bn_part in bn_part_name:
+                        state_dict[name_base + bn_name + bn_part] = \
+                            oristate_dict[bn_name + bn_part]
+
                     if record_last:
                         last_select_index = None
 
                 else:
                     state_dict[name_base+conv_weight_name] = oriweight
+                    for bn_part in bn_part_name:
+                        state_dict[name_base + bn_name + bn_part] = \
+                            oristate_dict[bn_name + bn_part]
                     if record_last:
                         last_select_index = None
 
+                state_dict[name_base + bn_name + '.num_batches_tracked'] = oristate_dict[bn_name + '.num_batches_tracked']
                 cnt+=1
 
     for name, module in model.named_modules():
