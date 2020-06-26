@@ -95,7 +95,7 @@ After training, totally four files can be found in the `job_dir`, including best
 
 We provide our pre-trained models, and pruned models including their corresponding training loggers and configuration files below.
 
-(The percentages in parentheses indicate the pruned rate)
+(The percentages in parentheses indicate the pruning rate)
 
 ##### CIFAR-10
 
