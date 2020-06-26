@@ -129,7 +129,7 @@ We provide our pre-trained models, and pruned models. For your ease of reproduci
 | MobileNet-v2|      3.50M           |       314.13M     |       71.70%         |      90.43%          |  [pre-trained](https://drive.google.com/file/d/16YAmYG9u9NB6ztyzSz6e21qSKcr9AT6e/view?usp=sharing)  |
 
 
-To verify our model performance, please use the command below (make sure you are using the corresponding compress rate in the configuration file of that model):
+To verify our model performance, please use the command below (make sure you are using the corresponding compression rate in the configuration file of that model):
 
 ```shell
 python evaluate_cifar.py \
