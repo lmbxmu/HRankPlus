@@ -114,6 +114,17 @@ parser.add_argument(
     help='compress rate of each conv')
 
 parser.add_argument(
+    '--test_only',
+    action='store_true',
+    help='whether it is test mode')
+
+parser.add_argument(
+    '--test_model_dir',
+    type=str,
+    default='',
+    help='test model path')
+
+parser.add_argument(
     '-j', '--workers',
     default=4,
     type=int,
@@ -152,6 +163,7 @@ def load_resnet_model(model, oristate_dict):
            'resnet152': [3, 8, 36, 3]}
 
     state_dict = model.state_dict()
+    pdb.set_trace()
 
     current_cfg = cfg[args.arch]
     last_select_index = None
@@ -470,6 +482,35 @@ def main():
     model = eval(args.arch)(compress_rate=compress_rate).cuda()
     logger.info(model)
 
+    criterion = nn.CrossEntropyLoss()
+    criterion = criterion.cuda()
+    criterion_smooth = utils.CrossEntropyLabelSmooth(CLASSES, args.label_smooth)
+    criterion_smooth = criterion_smooth.cuda()
+
+    # load training data
+    print('==> Preparing data..')
+    def get_data_set(type='train'):
+        if type == 'train':
+            return imagenet_dali.get_imagenet_iter_dali('train', args.data_dir, args.batch_size,
+                                                        num_threads=4, crop=224, device_id=0, num_gpus=1)
+        else:
+            return imagenet_dali.get_imagenet_iter_dali('val', args.data_dir, args.batch_size,
+                                                        num_threads=4, crop=224, device_id=0, num_gpus=1)
+    train_loader = get_data_set('train')
+    val_loader = get_data_set('val')
+
+    if args.test_only:
+        if os.path.isfile(args.test_model_dir):
+            logger.info('loading checkpoint {} ..........'.format(args.test_model_dir))
+            checkpoint = torch.load(args.test_model_dir)
+            if 'state_dict' in checkpoint:
+                model.load_state_dict(checkpoint['state_dict'])
+            else:
+                model.load_state_dict(checkpoint)
+            valid_obj, valid_top1_acc, valid_top5_acc = validate(0, val_loader, model, criterion, args)
+        else:
+            logger.info('please specify a checkpoint file')
+
     # calculate model size
     input_image_size = 224
     input_image = torch.randn(1, 3, input_image_size, input_image_size).cuda()
@@ -477,16 +518,15 @@ def main():
     logger.info('Params: %.2f' % (params))
     logger.info('Flops: %.2f' % (flops))
 
+    if args.test_only:
+        return
+
     if len(args.gpu) > 1:
         device_id = []
         for i in range((len(args.gpu) + 1) // 2):
             device_id.append(i)
         model = nn.DataParallel(model, device_ids=device_id).cuda()
 
-    criterion = nn.CrossEntropyLoss()
-    criterion = criterion.cuda()
-    criterion_smooth = utils.CrossEntropyLabelSmooth(CLASSES, args.label_smooth)
-    criterion_smooth = criterion_smooth.cuda()
 
     optimizer = torch.optim.SGD(model.parameters(), args.learning_rate, momentum=args.momentum)
 
@@ -529,18 +569,6 @@ def main():
         else:
             logger.info('training from scratch')
 
-    # load training data
-    print('==> Preparing data..')
-    def get_data_set(type='train'):
-        if type == 'train':
-            return imagenet_dali.get_imagenet_iter_dali('train', args.data_dir, args.batch_size,
-                                                        num_threads=4, crop=224, device_id=0, num_gpus=1)
-        else:
-            return imagenet_dali.get_imagenet_iter_dali('val', args.data_dir, args.batch_size,
-                                                        num_threads=4, crop=224, device_id=0, num_gpus=1)
-
-    train_loader = get_data_set('train')
-    val_loader = get_data_set('val')
 
     # train the model
     epoch = start_epoch
