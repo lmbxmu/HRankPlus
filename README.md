@@ -87,13 +87,13 @@ The following are the examples of compression rate setting for several models:
 | MobileNet-V1 | [0.]+[0.3]\*12 | 
 | MobileNet-V2 | [0.]+[0.3]*7 | 
 
-With the compress rate, our training module(evaluate_cifar.py and evaluate.py) can automatically calculate the params and FLOPs of that model and record them  in the training logger.
+With the compress rate, our training module (evaluate_cifar.py and evaluate.py) can automatically calculate the params and FLOPs of that model and record them  in the training logger.
 
-After training, totally four files can be found in the `job_dir`, including best model, final model, config file and logger file.
+After training, a total of four files can be found in the `job_dir`, including best model, final model, config file and logger file.
 
 ### Experimental Results
 
-We provide our pre-trained models, and pruned models. For your ease of reproducibility, the training loggers and configuration files are attached as well (see the url links).
+We provide our pre-trained models, and pruned models. For your ease of reproducibility, the training loggers and configuration files are attached with the url link as well.
 
 (The percentages in parentheses indicate the pruning rate)
 
