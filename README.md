@@ -99,30 +99,31 @@ We provide our pre-trained models, and pruned models including their correspondi
 
 ##### CIFAR-10
 
-| Full Model | Params        | Flops          |  Accuracy | Model                                              |
+| Architecture | Params        | Flops          |  Accuracy | Model                                              |
 |:----------:|:-------------:|:--------------:|:--------:|:------------------------------------------------------------:|
-| VGG-16-BN(Baseline)      | 14.98M(0.0%) | 313.73M(0.0%) | 93.96%   | [pre-trained model](https://drive.google.com/open?id=1i3ifLh70y1nb8d4mazNzyC4I27jQcHrE) |
-| VGG-16-BN      | 2.76M(81.6%) | 131.17M(58.1%) | 93.73%(-0.23%)   | [pruned model](https://drive.google.com/drive/folders/1iTfZt6bWN9RsoYYv9JHOia0EOEB5vxSp?usp=sharing) |
-| VGG-16-BN      | 2.50M(83.3%) | 104.78M(66.6%) | 93.56%(-0.40%)    | [pruned model](https://drive.google.com/drive/folders/1guvmJ97al7dDE7pQ2gcYMpG4ASQyu2rK?usp=sharing) |
-| VGG-16-BN      | 1.90M(87.3%) | 66.95M(78.6%) | 93.10%(-0.86%)    | [pruned model](https://drive.google.com/drive/folders/1NWssBVcGJs_d72B89A7vdIzhaDC0zvUX?usp=sharing) |
-| ResNet-56(Baseline)   | 0.85M(0.0%) | 125.49M(0.0%) |  93.26%   |  [pre-trained model](https://drive.google.com/open?id=1f1iSGvYFjSKIvzTko4fXFCbS-8dw556T)
-| ResNet-56   | 0.66M(22.3%) | 90.35M(28.0%) |  93.85%(+0.59%)   | [pruned model](https://drive.google.com/drive/folders/1sfArXzP1iKtBjGMjXXL7GpcgNPjBjRjy?usp=sharing) |
-| ResNet-56   | 0.48M(42.8%) | 65.94M(47.4%) | 93.57%(+0.31%)   | [pruned model](https://drive.google.com/drive/folders/12Z21U0eUOQSRHde0Nk7TUwgt0i8gCpTm?usp=sharing) |
-| ResNet-56   | 0.26M(69.0%) | 31.20M(75.1%) | 92.14%(-1.12%)  | [pruned model](https://drive.google.com/drive/folders/1ujRfo60hqJp3tEOStWruhoFOkDMoxtdq?usp=sharing) |
-| ResNet-110(Baseline)   | 1.72M(0.0%) | 252.89M(0.0%) |  93.50%   |  [pre-trained model](https://drive.google.com/open?id=1uENM3S5D_IKvXB26b1BFwMzUpkOoA26m)
-| ResNet-110   | 1.04M(39.1%) | 140.54M(44.4%) |  94.20%(+0.70%)   | [pruned model](https://drive.google.com/drive/folders/1Cci2so27VsEJRhwJ01HbN963L1tumB74?usp=sharing) |
-| ResNet-110   | 0.72M(58.1%) | 101.97M(59.6%) |  93.81%(+0.31%)   | [pruned model](https://drive.google.com/drive/folders/1poMhEDjWOn1UWjMkMz43ORVRdygxDg83?usp=sharing) |
-| ResNet-110   | 0.54M(68.3%) | 71.69M(71.6%) |  93.23%(-0.27%)   | [pruned model](https://drive.google.com/drive/folders/1pR6v1fC2tbzsXP_RqDe05Af8J42q1EgO?usp=sharing) |
-| GoogLeNet(Baseline)  | 6.15M(0.0%) | 1520M(0.0%) | 95.05%   |  | [pre-trained model](https://drive.google.com/open?id=1rYMazSyMbWwkCGCLvofNKwl58W6mmg5c)
-| GoogLeNet  | 2.85M(53.5%) | 649.19M(57.2%) | 95.04%(-0.01%)   | [pruned model](https://drive.google.com/drive/folders/1fcoRYP3lxSXxBsZtjl8tEJIKZKebJhEC?usp=sharing) |
-| GoogLeNet  | 2.09M(65.8%) | 395.42M(73.9%) | 94.82%(-0.23%)   | [pruned model](https://drive.google.com/drive/folders/1QKs2yM0ApsrRr1Tya7kpXfc-B5a4PDXK?usp=sharing) |
-| DenseNet-40(Baseline)  | 1.04M(0.0%) | 282.00M(0.0%) | 94.81%   | [pre-trained model](https://drive.google.com/open?id=12rInJ0YpGwZd_k76jctQwrfzPubsfrZH)
-| DenseNet-40  | 0.62M(40.1%) | 173.39M(38.5%) | 94.51%(-0.30%)   | [pruned model](https://drive.google.com/drive/folders/1gCOD7MCyjqY7JYKD_WzznRQN-A85kEqk?usp=sharing) |
-| DenseNet-40  | 0.45M(56.5%) | 133.17M(52.7%) | 93.91%(-0.90%)   | [pruned model](https://drive.google.com/drive/folders/1s7iuIGKR19-z7fqL54BlszplMmojAP7s?usp=sharing) |
-| DenseNet-40  | 0.39M(61.9%) | 113.08M(59.9%) | 93.66%(-1.21%)   | [pruned model](https://drive.google.com/drive/folders/14bP40bwViUIy38z_x0isdLYnXIsO0S2H?usp=sharing) |
+| VGG-16-BN(Baseline)      | 14.98M(0.0%) | 313.73M(0.0%) | 93.96%   | [pre-trained](https://drive.google.com/open?id=1i3ifLh70y1nb8d4mazNzyC4I27jQcHrE) |
+| VGG-16-BN      | 2.76M(81.6%) | 131.17M(58.1%) | 93.73%(-0.23%)   | [pruned](https://drive.google.com/drive/folders/1iTfZt6bWN9RsoYYv9JHOia0EOEB5vxSp?usp=sharing) |
+| VGG-16-BN      | 2.50M(83.3%) | 104.78M(66.6%) | 93.56%(-0.40%)    | [pruned](https://drive.google.com/drive/folders/1guvmJ97al7dDE7pQ2gcYMpG4ASQyu2rK?usp=sharing) |
+| VGG-16-BN      | 1.90M(87.3%) | 66.95M(78.6%) | 93.10%(-0.86%)    | [pruned](https://drive.google.com/drive/folders/1NWssBVcGJs_d72B89A7vdIzhaDC0zvUX?usp=sharing) |
+| ResNet-56(Baseline)   | 0.85M(0.0%) | 125.49M(0.0%) |  93.26%   |  [pre-trained](https://drive.google.com/open?id=1f1iSGvYFjSKIvzTko4fXFCbS-8dw556T)
+| ResNet-56   | 0.66M(22.3%) | 90.35M(28.0%) |  93.85%(+0.59%)   | [pruned](https://drive.google.com/drive/folders/1sfArXzP1iKtBjGMjXXL7GpcgNPjBjRjy?usp=sharing) |
+| ResNet-56   | 0.48M(42.8%) | 65.94M(47.4%) | 93.57%(+0.31%)   | [pruned](https://drive.google.com/drive/folders/12Z21U0eUOQSRHde0Nk7TUwgt0i8gCpTm?usp=sharing) |
+| ResNet-56   | 0.26M(69.0%) | 31.20M(75.1%) | 92.14%(-1.12%)  | [pruned](https://drive.google.com/drive/folders/1ujRfo60hqJp3tEOStWruhoFOkDMoxtdq?usp=sharing) |
+| ResNet-110(Baseline)   | 1.72M(0.0%) | 252.89M(0.0%) |  93.50%   |  [pre-trained](https://drive.google.com/open?id=1uENM3S5D_IKvXB26b1BFwMzUpkOoA26m)
+| ResNet-110   | 1.04M(39.1%) | 140.54M(44.4%) |  94.20%(+0.70%)   | [pruned](https://drive.google.com/drive/folders/1Cci2so27VsEJRhwJ01HbN963L1tumB74?usp=sharing) |
+| ResNet-110   | 0.72M(58.1%) | 101.97M(59.6%) |  93.81%(+0.31%)   | [pruned](https://drive.google.com/drive/folders/1poMhEDjWOn1UWjMkMz43ORVRdygxDg83?usp=sharing) |
+| ResNet-110   | 0.54M(68.3%) | 71.69M(71.6%) |  93.23%(-0.27%)   | [pruned](https://drive.google.com/drive/folders/1pR6v1fC2tbzsXP_RqDe05Af8J42q1EgO?usp=sharing) |
+| GoogLeNet(Baseline)  | 6.15M(0.0%) | 1520M(0.0%) | 95.05%   |   [pre-trained](https://drive.google.com/open?id=1rYMazSyMbWwkCGCLvofNKwl58W6mmg5c)
+| GoogLeNet  | 2.85M(53.5%) | 649.19M(57.2%) | 95.04%(-0.01%)   | [pruned](https://drive.google.com/drive/folders/1fcoRYP3lxSXxBsZtjl8tEJIKZKebJhEC?usp=sharing) |
+| GoogLeNet  | 2.09M(65.8%) | 395.42M(73.9%) | 94.82%(-0.23%)   | [pruned](https://drive.google.com/drive/folders/1QKs2yM0ApsrRr1Tya7kpXfc-B5a4PDXK?usp=sharing) |
+| DenseNet-40(Baseline)  | 1.04M(0.0%) | 282.00M(0.0%) | 94.81%   | [pre-trained](https://drive.google.com/open?id=12rInJ0YpGwZd_k76jctQwrfzPubsfrZH)
+| DenseNet-40  | 0.62M(40.1%) | 173.39M(38.5%) | 94.51%(-0.30%)   | [pruned](https://drive.google.com/drive/folders/1gCOD7MCyjqY7JYKD_WzznRQN-A85kEqk?usp=sharing) |
+| DenseNet-40  | 0.45M(56.5%) | 133.17M(52.7%) | 93.91%(-0.90%)   | [pruned](https://drive.google.com/drive/folders/1s7iuIGKR19-z7fqL54BlszplMmojAP7s?usp=sharing) |
+| DenseNet-40  | 0.39M(61.9%) | 113.08M(59.9%) | 93.66%(-1.21%)   | [pruned](https://drive.google.com/drive/folders/14bP40bwViUIy38z_x0isdLYnXIsO0S2H?usp=sharing) |
 
 
 ##### ImageNet (Lacking GPUs... Coming as soon as Possible)
+| Architecture | Params        | Flops      | Top-1 Accuracy | Top-5 Accuracy | Model |
 
 
 To verify our model performance, please use the commands below(but please make sure you are using the corresponding compress rate in the configuration file of that model):
