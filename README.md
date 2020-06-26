@@ -93,7 +93,7 @@ After training, totally four files can be found in the `job_dir`, including best
 
 ### Experimental Results
 
-We provide our pre-trained models, and pruned models including their corresponding training loggers and configuration files below.
+We provide our pre-trained models, and pruned models. For your ease of reproducibility, the training loggers and configuration files are attached as well (see the url links).
 
 (The percentages in parentheses indicate the pruning rate)
 
@@ -125,11 +125,11 @@ We provide our pre-trained models, and pruned models including their correspondi
 ##### ImageNet (Lacking GPUs... Coming as soon as Possible)
 | Architecture | Params        | Flops      | Top-1 Accuracy | Top-5 Accuracy | Model |
 |:----------:|:-------------:|:--------------:|:--------:|:------------------:|:------------------------------------------------------------:|
-| ResNet-50  |       25.55M          |      4.11B      |     75.98%      |       92.95%         | [pre-trained](https://drive.google.com/open?id=1OYpVB84BMU0y-KU7PdEPhbHwODmFvPbB)|
-| MobileNet-v2|      3.50M           |       314.13M     |       71.70%         |      90.43%          |  [pre-trained](https://drive.google.com/file/d/16YAmYG9u9NB6ztyzSz6e21qSKcr9AT6e/view?usp=sharing)  |
+| ResNet-50  |                 |            |                |                | [pre-trained](https://drive.google.com/open?id=1OYpVB84BMU0y-KU7PdEPhbHwODmFvPbB)|
+| MobileNet-v2|                 |            |                |                |    |
 
 
-To verify our model performance, please use the commands below (make sure you are using the corresponding compress rate in the configuration file of that model):
+To verify our model performance, please use the command below (make sure you are using the corresponding compress rate in the configuration file of that model):
 
 ```shell
 python evaluate_cifar.py \
