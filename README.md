@@ -99,9 +99,9 @@ We provide our pruned models in the paper and their corresponding training logge
 
 ##### CIFAR-10
 
-| Full Model | Params        | Flops          |  Accuracy | Pruned Model                                                 |
+| Full Model | Params        | Flops          |  Accuracy | (Pruned) Model                                              |
 |:----------:|:-------------:|:--------------:|:--------:|:------------------------------------------------------------:|
-| VGG-16-BN(Baseline)      | 14.98M(0.0%) | 313.73M(0.0%) | 93.96%   |  |
+| VGG-16-BN(Baseline)      | 14.98M(0.0%) | 313.73M(0.0%) | 93.96%   | [link](https://drive.google.com/open?id=1i3ifLh70y1nb8d4mazNzyC4I27jQcHrE) |
 | VGG-16-BN      | 2.76M(81.6%) | 131.17M(58.1%) | 93.73%(-0.23%)   | [link](https://drive.google.com/drive/folders/1iTfZt6bWN9RsoYYv9JHOia0EOEB5vxSp?usp=sharing) |
 | VGG-16-BN      | 2.50M(83.3%) | 104.78M(66.6%) | 93.56%(-0.40%)    | [link](https://drive.google.com/drive/folders/1guvmJ97al7dDE7pQ2gcYMpG4ASQyu2rK?usp=sharing) |
 | VGG-16-BN      | 1.90M(87.3%) | 66.95M(78.6%) | 93.10%(-0.86%)    | [link](https://drive.google.com/drive/folders/1NWssBVcGJs_d72B89A7vdIzhaDC0zvUX?usp=sharing) |
