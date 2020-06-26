@@ -93,7 +93,7 @@ After training, totally four files can be found in the `job_dir`, including best
 
 ### Experimental Results
 
-We provide our pruned models in the paper and their corresponding training loggers and configuration files below.
+We provide our pre-trained models, and pruned models including their corresponding training loggers and configuration files below.
 
 (The percentages in parentheses indicate the pruned rate)
 
@@ -105,11 +105,11 @@ We provide our pruned models in the paper and their corresponding training logge
 | VGG-16-BN      | 2.76M(81.6%) | 131.17M(58.1%) | 93.73%(-0.23%)   | [link](https://drive.google.com/drive/folders/1iTfZt6bWN9RsoYYv9JHOia0EOEB5vxSp?usp=sharing) |
 | VGG-16-BN      | 2.50M(83.3%) | 104.78M(66.6%) | 93.56%(-0.40%)    | [link](https://drive.google.com/drive/folders/1guvmJ97al7dDE7pQ2gcYMpG4ASQyu2rK?usp=sharing) |
 | VGG-16-BN      | 1.90M(87.3%) | 66.95M(78.6%) | 93.10%(-0.86%)    | [link](https://drive.google.com/drive/folders/1NWssBVcGJs_d72B89A7vdIzhaDC0zvUX?usp=sharing) |
-| ResNet-56(Baseline)   | 0.85M(0.0%) | 125.49M(0.0%) |  93.26%   | |
+| ResNet-56(Baseline)   | 0.85M(0.0%) | 125.49M(0.0%) |  93.26%   | | [link](https://drive.google.com/open?id=1f1iSGvYFjSKIvzTko4fXFCbS-8dw556T)
 | ResNet-56   | 0.66M(22.3%) | 90.35M(28.0%) |  93.85%(+0.59%)   | [link](https://drive.google.com/drive/folders/1sfArXzP1iKtBjGMjXXL7GpcgNPjBjRjy?usp=sharing) |
 | ResNet-56   | 0.48M(42.8%) | 65.94M(47.4%) | 93.57%(+0.31%)   | [link](https://drive.google.com/drive/folders/12Z21U0eUOQSRHde0Nk7TUwgt0i8gCpTm?usp=sharing) |
 | ResNet-56   | 0.26M(69.0%) | 31.20M(75.1%) | 92.14%(-1.12%)  | [link](https://drive.google.com/drive/folders/1ujRfo60hqJp3tEOStWruhoFOkDMoxtdq?usp=sharing) |
-| ResNet-110(Baseline)   | 1.72M(0.0%) | 252.89M(0.0%) |  93.50%   | |
+| ResNet-110(Baseline)   | 1.72M(0.0%) | 252.89M(0.0%) |  93.50%   | | [link](https://drive.google.com/open?id=1uENM3S5D_IKvXB26b1BFwMzUpkOoA26m)
 | ResNet-110   | 1.04M(39.1%) | 140.54M(44.4%) |  94.20%(+0.70%)   | [link](https://drive.google.com/drive/folders/1Cci2so27VsEJRhwJ01HbN963L1tumB74?usp=sharing) |
 | ResNet-110   | 0.72M(58.1%) | 101.97M(59.6%) |  93.81%(+0.31%)   | [link](https://drive.google.com/drive/folders/1poMhEDjWOn1UWjMkMz43ORVRdygxDg83?usp=sharing) |
 | ResNet-110   | 0.54M(68.3%) | 71.69M(71.6%) |  93.23%(-0.27%)   | [link](https://drive.google.com/drive/folders/1pR6v1fC2tbzsXP_RqDe05Af8J42q1EgO?usp=sharing) |
