@@ -125,6 +125,7 @@ We provide our pre-trained models, and pruned models including their correspondi
 ##### ImageNet (Lacking GPUs... Coming as soon as Possible)
 | Architecture | Params        | Flops      | Top-1 Accuracy | Top-5 Accuracy | Model |
 |:----------:|:-------------:|:--------------:|:--------:|:------------------:|:------------------------------------------------------------:|
+| ResNet-50  |                 |            |                |                | [pre-trained](https://drive.google.com/open?id=1OYpVB84BMU0y-KU7PdEPhbHwODmFvPbB)|
 
 
 To verify our model performance, please use the commands below(but please make sure you are using the corresponding compress rate in the configuration file of that model):
