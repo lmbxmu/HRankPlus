@@ -76,7 +76,7 @@ python evaluate.py \
 The following are the examples of compression rate setting for several models: 
 (Please note that the following compression rates are only used to demonstrate the parameter format, which may not be used in our experiment. For the specific pruning rate, please refer to the configuration files of pruned model in the next section)
 
-|  Model      | Compress Rate |
+|  Model      | Compression Rate |
 |:-------------:|:-------------------------:|
 | VGG-16-BN | [0.45]\*7+[0.78]\*5 | 
 | ResNet-56 | [0.]+[0.18]\*29 | 
@@ -87,7 +87,7 @@ The following are the examples of compression rate setting for several models:
 | MobileNet-V1 | [0.]+[0.3]\*12 | 
 | MobileNet-V2 | [0.]+[0.3]*7 | 
 
-With the compress rate, our training module (evaluate_cifar.py and evaluate.py) can automatically calculate the params and FLOPs of that model and record them  in the training logger.
+With the compression rate, our training module (evaluate_cifar.py and evaluate.py) can automatically calculate the params and FLOPs of that model and record them  in the training logger.
 
 After training, a total of four files can be found in the `job_dir`, including best model, final model, config file and logger file.
 
