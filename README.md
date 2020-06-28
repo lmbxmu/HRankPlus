@@ -108,7 +108,7 @@ We provide our pre-trained models, and pruned models. For your ease of reproduci
 | ResNet-56(Baseline)   | 0.85M(0.0%) | 125.49M(0.0%) |  93.26%   |  [pre-trained](https://drive.google.com/open?id=1f1iSGvYFjSKIvzTko4fXFCbS-8dw556T)
 | ResNet-56   | 0.66M(22.3%) | 90.35M(28.0%) |  93.85%(+0.59%)   | [pruned](https://drive.google.com/drive/folders/1sfArXzP1iKtBjGMjXXL7GpcgNPjBjRjy?usp=sharing) |
 | ResNet-56   | 0.48M(42.8%) | 65.94M(47.4%) | 93.57%(+0.31%)   | [pruned](https://drive.google.com/drive/folders/12Z21U0eUOQSRHde0Nk7TUwgt0i8gCpTm?usp=sharing) |
-| ResNet-56   | 0.26M(69.0%) | 31.20M(75.1%) | 92.14%(-1.12%)  | [pruned](https://drive.google.com/drive/folders/1ujRfo60hqJp3tEOStWruhoFOkDMoxtdq?usp=sharing) |
+| ResNet-56   | 0.24M(70.0%) | 34.78M(74.1%) | 92.32%(-0.94%)  | [pruned](https://drive.google.com/drive/folders/1Pkyhi5PQRHTXE4eDMyJ3nYTNUIZYP5xy?usp=sharing) |
 | ResNet-110(Baseline)   | 1.72M(0.0%) | 252.89M(0.0%) |  93.50%   |  [pre-trained](https://drive.google.com/open?id=1uENM3S5D_IKvXB26b1BFwMzUpkOoA26m)
 | ResNet-110   | 1.04M(39.1%) | 140.54M(44.4%) |  94.20%(+0.70%)   | [pruned](https://drive.google.com/drive/folders/1Cci2so27VsEJRhwJ01HbN963L1tumB74?usp=sharing) |
 | ResNet-110   | 0.72M(58.1%) | 101.97M(59.6%) |  93.81%(+0.31%)   | [pruned](https://drive.google.com/drive/folders/1poMhEDjWOn1UWjMkMz43ORVRdygxDg83?usp=sharing) |
