@@ -1,6 +1,8 @@
 # An extension version of our CVPR 2020, oral: HRank: Filter Pruning using High-Rank Feature Map ([Link](https://128.84.21.199/abs/2002.10179)).
 
-### We are now releasing this code under the request of many friends. However, we are not sure if this code is stable. Please contact us if you have found any problem, which would be appreciated.
+### We are now releasing this code under the request of many friends. However, we are not sure if this code is stable. Please contact us if you have found any problem, which would be appreciated. 
+
+### Prior code version can be found [here](https://github.com/lmbxmu/HRank).
 
 ### In the next two or three months, we will continue to maintain this repository and the pruned models will be released constantly. 
 
@@ -76,7 +78,7 @@ python evaluate.py \
 The following are the examples of compression rate setting for several models: 
 (Please note that the following compression rates are only used to demonstrate the parameter format, which may not be used in our experiment. For the specific pruning rate, please refer to the configuration files of pruned model in the next section)
 
-|  Model      | Compress Rate |
+|  Model      | Compression Rate |
 |:-------------:|:-------------------------:|
 | VGG-16-BN | [0.45]\*7+[0.78]\*5 | 
 | ResNet-56 | [0.]+[0.18]\*29 | 
@@ -87,7 +89,7 @@ The following are the examples of compression rate setting for several models:
 | MobileNet-V1 | [0.]+[0.3]\*12 | 
 | MobileNet-V2 | [0.]+[0.3]*7 | 
 
-With the compress rate, our training module (evaluate_cifar.py and evaluate.py) can automatically calculate the params and FLOPs of that model and record them  in the training logger.
+With the compression rate, our training module (evaluate_cifar.py and evaluate.py) can automatically calculate the params and FLOPs of that model and record them  in the training logger.
 
 After training, a total of four files can be found in the `job_dir`, including best model, final model, config file and logger file.
 
@@ -129,7 +131,7 @@ We provide our pre-trained models, and pruned models. For your ease of reproduci
 | MobileNet-v2|      3.50M           |       314.13M     |       71.70%         |      90.43%          |  [pre-trained](https://drive.google.com/file/d/16YAmYG9u9NB6ztyzSz6e21qSKcr9AT6e/view?usp=sharing)  |
 
 
-To verify our model performance, please use the command below (make sure you are using the corresponding compress rate in the configuration file of that model):
+To verify our model performance, please use the command below (make sure you are using the corresponding compression rate in the configuration file of that model):
 
 ```shell
 python evaluate_cifar.py \
