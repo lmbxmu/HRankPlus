@@ -141,7 +141,8 @@ args = parser.parse_args()
 os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
 
 CLASSES = 1000
-print_freq = (64*50)//args.batch_size
+#print_freq = (64*128000)//args.batch_size
+print_freq = 128000
 
 if not os.path.isdir(args.job_dir):
     os.mkdir(args.job_dir)
