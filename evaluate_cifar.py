@@ -21,6 +21,7 @@ from models.cifar10.resnet import resnet_56, resnet_110
 from models.cifar10.googlenet import googlenet, Inception
 from models.cifar10.densenet import densenet_40
 
+from data import cifar10
 import utils.common as utils
 
 
@@ -581,20 +582,7 @@ def main():
     logger.info('Flops: %.2f' % (flops))
 
     # load training data
-    transform_train = transforms.Compose([
-        transforms.RandomCrop(32, padding=4),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
-    ])
-    transform_test = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
-    ])
-    trainset = torchvision.datasets.CIFAR10(root=args.data_dir, train=True, download=True, transform=transform_train)
-    train_loader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size, shuffle=True, num_workers=2)
-    testset = torchvision.datasets.CIFAR10(root=args.data_dir, train=False, download=True, transform=transform_test)
-    val_loader = torch.utils.data.DataLoader(testset, batch_size=args.batch_size, shuffle=False, num_workers=2)
+    train_loader, val_loader = cifar10.load_data(args)
 
     criterion = nn.CrossEntropyLoss()
     criterion = criterion.cuda()
