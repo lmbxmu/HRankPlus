@@ -50,7 +50,7 @@ parser.add_argument(
 parser.add_argument(
     '--epochs',
     type=int,
-    default=100,
+    default=90,
     help='num of training epochs')
 
 parser.add_argument(
@@ -538,6 +538,7 @@ def main():
             else:
                 model.load_state_dict(checkpoint)
             valid_obj, valid_top1_acc, valid_top5_acc = validate(0, val_loader, model, criterion, args)
+            val_loader.reset()
         else:
             logger.info('please specify a checkpoint file')
 
@@ -605,6 +606,8 @@ def main():
     while epoch < args.epochs:
         train_obj, train_top1_acc,  train_top5_acc = train(epoch,  train_loader, model, criterion_smooth, optimizer)
         valid_obj, valid_top1_acc, valid_top5_acc = validate(epoch, val_loader, model, criterion, args)
+        train_loader.reset()
+        val_loader.reset()
 
         is_best = False
         if valid_top1_acc > best_top1_acc:
