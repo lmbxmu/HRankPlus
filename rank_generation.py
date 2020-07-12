@@ -18,6 +18,7 @@ from models.imagenet.resnet import resnet_50
 from models.imagenet.mobilenetv2 import mobilenet_v2
 from models.imagenet.mobilenetv1 import mobilenet_v1
 
+from data import imagenet_dali
 import utils.common as utils
 
 parser = argparse.ArgumentParser(description='Rank extraction')
@@ -84,32 +85,14 @@ if args.dataset=='cifar10':
     ])
 
     trainset = torchvision.datasets.CIFAR10(root=args.data_dir, train=True, download=True, transform=transform_train)
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size, shuffle=True, num_workers=2)
+    train_loader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size, shuffle=True, num_workers=2)
 
 elif args.dataset=='imagenet':
-    # load training data
-    traindir = os.path.join(args.data_dir, 'ILSVRC2012_img_train')
-    valdir = os.path.join(args.data_dir, 'val')
-    normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                     std=[0.229, 0.224, 0.225])
-
-    # data augmentation
-    crop_scale = 0.08
-    lighting_param = 0.1
-    train_transforms = transforms.Compose([
-        transforms.RandomResizedCrop(224, scale=(crop_scale, 1.0)),
-        utils.Lighting(lighting_param),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        normalize])
-
-    train_dataset = datasets.ImageFolder(
-        traindir,
-        transform=train_transforms)
-
-    trainloader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=args.batch_size, shuffle=True,
-        num_workers=2, pin_memory=True)
+    print('==> Preparing data..')
+    def get_data_set():
+        return imagenet_dali.get_imagenet_iter_dali('train', args.data_dir, args.batch_size,
+                                                        num_threads=4, crop=224, device_id=0, num_gpus=1)
+    train_loader = get_data_set()
 
 # Model
 print('==> Building model..')
@@ -196,12 +179,17 @@ def inference():
     limit = args.limit
 
     with torch.no_grad():
-        for batch_idx, (inputs, targets) in enumerate(trainloader):
+        #for batch_idx, (inputs, targets) in enumerate(train_loader):
+        for batch_idx, batch_data in enumerate(train_loader):
             # use the first 5 batches to estimate the rank.
             if batch_idx >= limit:
                break
-            inputs, targets = inputs.to(device), targets.to(device)
-            outputs = net(inputs)
+
+            images = batch_data[0]['data'].cuda()
+            targets = batch_data[0]['label'].squeeze().long().cuda()
+            #inputs, targets = inputs.to(device), targets.to(device)
+
+            outputs = net(images)
             loss = criterion(outputs, targets)
 
             test_loss += loss.item()
