@@ -50,7 +50,7 @@ parser.add_argument(
 parser.add_argument(
     '--epochs',
     type=int,
-    default=100,
+    default=90,
     help='num of training epochs')
 
 parser.add_argument(
@@ -538,6 +538,7 @@ def main():
             else:
                 model.load_state_dict(checkpoint)
             valid_obj, valid_top1_acc, valid_top5_acc = validate(0, val_loader, model, criterion, args)
+            val_loader.reset()
         else:
             logger.info('please specify a checkpoint file')
 
@@ -603,6 +604,8 @@ def main():
     while epoch < args.epochs:
         train_obj, train_top1_acc,  train_top5_acc = train(epoch,  train_loader, model, criterion_smooth, optimizer)
         valid_obj, valid_top1_acc, valid_top5_acc = validate(epoch, val_loader, model, criterion, args)
+        train_loader.reset()
+        val_loader.reset()
 
         is_best = False
         if valid_top1_acc > best_top1_acc:
@@ -634,6 +637,7 @@ def train(epoch, train_loader, model, criterion, optimizer):
     #scheduler.step()
 
     num_iter = train_loader._size // args.batch_size
+    print_freq = num_iter // 10
     for batch_idx, batch_data in enumerate(train_loader):
         images = batch_data[0]['data'].cuda()
         targets = batch_data[0]['label'].squeeze().long().cuda()
@@ -661,7 +665,7 @@ def train(epoch, train_loader, model, criterion, optimizer):
         batch_time.update(time.time() - end)
         end = time.time()
 
-        if batch_idx % print_freq == 0:
+        if batch_idx % print_freq == 0 and batch_idx != 0:
             logger.info(
                 'Epoch[{0}]({1}/{2}): '
                 'Loss {loss.avg:.4f} '
@@ -699,14 +703,6 @@ def validate(epoch, val_loader, model, criterion, args):
             # measure elapsed time
             batch_time.update(time.time() - end)
             end = time.time()
-
-            if batch_idx % print_freq == 0:
-                logger.info(
-                    'Epoch[{0}]({1}/{2}): '
-                    'Loss {loss.avg:.4f} '
-                    'Prec@1(1,5) {top1.avg:.2f}, {top5.avg:.2f}'.format(
-                        epoch, batch_idx, num_iter, loss=losses,
-                        top1=top1, top5=top5))
 
         logger.info(' * Acc@1 {top1.avg:.3f} Acc@5 {top5.avg:.3f}'
                     .format(top1=top1, top5=top5))
