@@ -142,7 +142,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
 
 CLASSES = 1000
 #print_freq = (64*128000)//args.batch_size
-print_freq = 128000
+print_freq = 128000//args.batch_size
 
 if not os.path.isdir(args.job_dir):
     os.mkdir(args.job_dir)
@@ -171,7 +171,7 @@ def load_resnet_model(model, oristate_dict):
     all_honey_conv_weight = []
 
     bn_part_name=['.weight','.bias','.running_mean','.running_var']#,'.num_batches_tracked']
-    prefix = args.rank_conv_prefix
+    prefix = args.rank_conv_prefix+'/rank_conv'
     subfix = ".npy"
     cnt=1
 
@@ -306,7 +306,7 @@ def load_mobilenetv2_model(model, oristate_dict):
 
     all_honey_conv_weight = []
 
-    prefix = args.rank_conv_prefix
+    prefix = args.rank_conv_prefix+'/rank_conv'
     subfix = ".npy"
 
     layer_cnt=1
@@ -387,7 +387,7 @@ def load_mobilenetv1_model(model, oristate_dict):
     last_select_index = None
     all_honey_conv_weight = []
 
-    prefix = args.rank_conv_prefix
+    prefix = args.rank_conv_prefix+'/rank_conv'
     subfix = ".npy"
 
     conv_cnt=1
@@ -557,8 +557,7 @@ def main():
             device_id.append(i)
         model = nn.DataParallel(model, device_ids=device_id).cuda()
 
-
-    optimizer = torch.optim.SGD(model.parameters(), args.learning_rate, momentum=args.momentum)
+    optimizer = torch.optim.SGD(model.parameters(), args.learning_rate, momentum=args.momentum, weight_decay=args.weight_decay)
 
     '''# define the learning rate scheduler
     #scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lambda step : (1.0-step/args.epochs), last_epoch=-1)
@@ -598,7 +597,6 @@ def main():
                 raise
         else:
             logger.info('training from scratch')
-
 
     # train the model
     epoch = start_epoch

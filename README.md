@@ -69,6 +69,7 @@ python evaluate.py \
 --job_dir ./result/[model name]/[folder name] \
 --arch [model name](resnet_50, mobilenet_v1, mobilenet_v2) \
 --rank_conv_prefix [rank folder dir] \
+--lr_type (cos or step) \
 --use_pretrain \
 --pretrain_dir [pre-trained model dir] \
 --compress_rate [compress rate] \
