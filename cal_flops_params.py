@@ -4,6 +4,14 @@ import argparse
 
 from thop import profile
 
+from models.cifar10.vgg import vgg_16_bn
+from models.cifar10.resnet import resnet_56, resnet_110
+from models.cifar10.googlenet import googlenet, Inception
+from models.cifar10.densenet import densenet_40
+
+from models.imagenet.resnet import resnet_50
+from models.imagenet.mobilenetv1 import mobilenet_v1
+from models.imagenet.mobilenetv2 import mobilenet_v2
 
 parser = argparse.ArgumentParser(description='Calculating flops and params')
 
