@@ -87,7 +87,7 @@ optional arguments:
     --arch				Architecture of model. default: vgg_16_bn 
     					Optional: resnet_50, mobilenet_v2, mobilenet_v1, vgg_16_bn, resnet_56, resnet_110, densenet_40, googlenet
     --learning_rate			Initial learning rate. default: 0.1
-    --lr_type 				Learning rate decay schedule. default: step
+    --lr_type 				Learning rate decay schedule. default: step. optional: step, cos
     --momentum   			Momentum for optimizer. default: 0.9
     --epochs				The number of epochs to train. default: 90
     --batch_size			Batch size for both training and validation. default: 64
