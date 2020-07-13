@@ -311,6 +311,7 @@ def load_mobilenetv2_model(model, oristate_dict):
 
     all_honey_conv_weight = []
 
+    bn_part_name=['.weight','.bias','.running_mean','.running_var']
     prefix = args.rank_conv_prefix+'/rank_conv'
     subfix = ".npy"
 
@@ -333,7 +334,9 @@ def load_mobilenetv2_model(model, oristate_dict):
 
             for l in conv_id:
                 conv_cnt += 1
-                conv_name = block_name+str(l)
+                conv_name = block_name + str(l)
+                bn_name = block_name + str(l+1)
+
                 conv_weight_name = conv_name + '.weight'
                 all_honey_conv_weight.append(conv_weight_name)
                 oriweight = oristate_dict[conv_weight_name]
@@ -352,10 +355,16 @@ def load_mobilenetv2_model(model, oristate_dict):
                             for index_j, j in enumerate(last_select_index):
                                 state_dict[name_base+conv_weight_name][index_i][index_j] = \
                                     oristate_dict[conv_weight_name][i][j]
+                            for bn_part in bn_part_name:
+                                state_dict[name_base + bn_name + bn_part][index_i] = \
+                                    oristate_dict[bn_name + bn_part][i]
                     else:
                         for index_i, i in enumerate(select_index):
                             state_dict[name_base+conv_weight_name][index_i] = \
                                 oristate_dict[conv_weight_name][i]
+                            for bn_part in bn_part_name:
+                                state_dict[name_base + bn_name + bn_part][index_i] = \
+                                    oristate_dict[bn_name + bn_part][i]
 
                     last_select_index = select_index
 
@@ -364,11 +373,19 @@ def load_mobilenetv2_model(model, oristate_dict):
                         for index_j, j in enumerate(last_select_index):
                             state_dict[name_base+conv_weight_name][index_i][index_j] = \
                                 oristate_dict[conv_weight_name][index_i][j]
+                    for bn_part in bn_part_name:
+                        state_dict[name_base + bn_name + bn_part] = \
+                            oristate_dict[bn_name + bn_part]
                     last_select_index = None
 
                 else:
                     state_dict[name_base+conv_weight_name] = oriweight
+                    for bn_part in bn_part_name:
+                        state_dict[name_base + bn_name + bn_part] = \
+                            oristate_dict[bn_name + bn_part]
                     last_select_index = None
+
+                state_dict[name_base + bn_name + '.num_batches_tracked'] = oristate_dict[bn_name + '.num_batches_tracked']
 
             layer_cnt+=1
 
@@ -376,8 +393,15 @@ def load_mobilenetv2_model(model, oristate_dict):
         name = name.replace('module.', '')
         if isinstance(module, nn.Conv2d):
             conv_name = name + '.weight'
+            bn_name = list(name[:])
+            bn_name[-1] = str(int(name[-1])+1)
+            bn_name = ''.join(bn_name)
             if conv_name not in all_honey_conv_weight:
                 state_dict[name_base+conv_name] = oristate_dict[conv_name]
+                for bn_part in bn_part_name:
+                    state_dict[name_base + bn_name + bn_part] = \
+                        oristate_dict[bn_name + bn_part]
+                state_dict[name_base + bn_name + '.num_batches_tracked'] = oristate_dict[bn_name + '.num_batches_tracked']
 
         elif isinstance(module, nn.Linear):
             state_dict[name_base+name + '.weight'] = oristate_dict[name + '.weight']
@@ -392,6 +416,7 @@ def load_mobilenetv1_model(model, oristate_dict):
     last_select_index = None
     all_honey_conv_weight = []
 
+    bn_part_name=['.weight','.bias','.running_mean','.running_var']
     prefix = args.rank_conv_prefix+'/rank_conv'
     subfix = ".npy"
 
@@ -402,6 +427,8 @@ def load_mobilenetv1_model(model, oristate_dict):
         for l in conv_id:
             conv_cnt += 1
             conv_name = block_name+str(l)
+            bn_name = block_name + str(l + 1)
+
             conv_weight_name = conv_name + '.weight'
             all_honey_conv_weight.append(conv_weight_name)
             oriweight = oristate_dict[conv_weight_name]
@@ -420,10 +447,16 @@ def load_mobilenetv1_model(model, oristate_dict):
                         for index_j, j in enumerate(last_select_index):
                             state_dict[name_base+conv_weight_name][index_i][index_j] = \
                                 oristate_dict[conv_weight_name][i][j]
+                        for bn_part in bn_part_name:
+                            state_dict[name_base + bn_name + bn_part][index_i] = \
+                                oristate_dict[bn_name + bn_part][i]
                 else:
                     for index_i, i in enumerate(select_index):
                         state_dict[name_base+conv_weight_name][index_i] = \
                             oristate_dict[conv_weight_name][i]
+                        for bn_part in bn_part_name:
+                            state_dict[name_base + bn_name + bn_part][index_i] = \
+                                oristate_dict[bn_name + bn_part][i]
 
                 last_select_index = select_index
 
@@ -432,18 +465,32 @@ def load_mobilenetv1_model(model, oristate_dict):
                     for index_j, j in enumerate(last_select_index):
                         state_dict[name_base+conv_weight_name][index_i][index_j] = \
                             oristate_dict[conv_weight_name][index_i][j]
+                for bn_part in bn_part_name:
+                    state_dict[name_base + bn_name + bn_part] = \
+                        oristate_dict[bn_name + bn_part]
                 last_select_index = None
 
             else:
                 state_dict[name_base+conv_weight_name] = oriweight
+                for bn_part in bn_part_name:
+                    state_dict[name_base + bn_name + bn_part] = \
+                        oristate_dict[bn_name + bn_part]
                 last_select_index = None
+
+            state_dict[name_base + bn_name + '.num_batches_tracked'] = oristate_dict[bn_name + '.num_batches_tracked']
 
     for name, module in model.named_modules():
         name = name.replace('module.', '')
         if isinstance(module, nn.Conv2d):
             conv_name = name + '.weight'
+            bn_name = list(name[:])
+            bn_name[-1] = str(int(name[-1]) + 1)
+            bn_name = ''.join(bn_name)
             if conv_name not in all_honey_conv_weight:
                 state_dict[name_base+conv_name] = oristate_dict[conv_name]
+                for bn_part in bn_part_name:
+                    state_dict[name_base + bn_name + bn_part] = \
+                        oristate_dict[bn_name + bn_part]
 
         elif isinstance(module, nn.Linear):
             state_dict[name_base+name + '.weight'] = oristate_dict[name + '.weight']
@@ -583,7 +630,7 @@ def main():
     if os.path.exists(checkpoint_dir):
         logger.info('loading checkpoint {} ..........'.format(checkpoint_dir))
         checkpoint = torch.load(checkpoint_dir)
-        start_epoch = checkpoint['epoch']
+        start_epoch = checkpoint['epoch']+1
         best_top1_acc = checkpoint['best_top1_acc']
 
         #deal with the single-multi GPU problem

@@ -609,7 +609,7 @@ def main():
     if os.path.exists(checkpoint_tar):
         logger.info('loading checkpoint {} ..........'.format(checkpoint_tar))
         checkpoint = torch.load(checkpoint_tar)
-        start_epoch = checkpoint['epoch']
+        start_epoch = checkpoint['epoch']+1
         best_top1_acc = checkpoint['best_top1_acc']
         model.load_state_dict(checkpoint['state_dict'])
         logger.info("loaded checkpoint {} epoch = {}" .format(checkpoint_tar, checkpoint['epoch']))#'''
