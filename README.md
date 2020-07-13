@@ -86,12 +86,12 @@ optional arguments:
     --compress_rate 			Compress rate of each convolutional layer.
     --arch				Architecture of model. default: vgg_16_bn 
     					Optional: resnet_50, mobilenet_v2, mobilenet_v1, vgg_16_bn, resnet_56, resnet_110, densenet_40, googlenet
-    --learning_rate				Initial learning rate. default: 0.1
+    --learning_rate			Initial learning rate. default: 0.1
     --lr_type 				Learning rate decay schedule. default: step
-    --momentum   				Momentum for optimizer. default: 0.9
+    --momentum   			Momentum for optimizer. default: 0.9
     --epochs				The number of epochs to train. default: 90
     --batch_size			Batch size for both training and validation. default: 64
-    --weight_decay 				The weight decay of loss function. default: 1e-4
+    --weight_decay 			The weight decay of loss function. default: 1e-4
     --label_smooth			Label smooth parameter. default: 0.1
     
     --use_dali 				If this parameter exist, use dali module to load ImageNet data.
@@ -100,7 +100,7 @@ optional arguments:
     --test_only				If this parameter exist, only validate the model performance without training.
     --test_model_dir			Test model directory
     -j, --workers 			The number of data loading workers. default: 4
-    --gpu	 			Select gpu to use.	default: 0
+    --gpu	 			Select gpu to use. default: 0
 ```
 
 
