@@ -641,6 +641,7 @@ def main():
             }, is_best, args.job_dir)
 
         epoch += 1
+        logger.info("=>Best accuracy {:.3f}".format(best_top1_acc))
 
     training_time = (time.time() - start_t) / 36000
     logger.info('total training time = {} hours'.format(training_time))
