@@ -77,6 +77,33 @@ python evaluate.py \
 --gpu [gpu_id]
 ```
 
+##### 3. Optional arguments(ImageNet)
+```
+optional arguments:
+    --data_dir				Dataset directory.
+    --job_dir				The directory where the summaries will be stored.
+    --rank_conv_prefix 		Prefix directory of rank folder.
+    --compress_rate 		Compress rate of each convolutional layer.
+    --arch					Architecture of model. default: vgg_16_bn 
+    						Optional: resnet_50, mobilenet_v2, mobilenet_v1, vgg_16_bn, resnet_56, resnet_110, densenet_40, googlenet
+	--learning_rate			Initial learning rate. default: 0.1
+    --lr_type 				Learning rate decay schedule. default: step
+	--momentum   			Momentum for optimizer. default: 0.9
+	--epochs				The number of epochs to train. default: 90
+    --batch_size			Batch size for both training and validation. default: 64
+	--weight_decay 			The weight decay of loss function. default: 1e-4
+    --label_smooth			Label smooth parameter. default: 0.1
+    
+    --use_dali 				If this parameter exist, use dali module to load ImageNet data.
+    --use_pretrain			If this parameter exist, use pretrained model for finetuning.
+    --pretrain_dir			Pretrained model directory.
+	--test_only				If this parameter exist, only validate the model performance without training.
+	--test_model_dir		Test model directory
+    -j, --workers 			The number of data loading workers. default: 4
+    --gpu	 				Select gpu to use.	default: 0
+```
+
+
 The following are the examples of compression rate setting for several models: 
 (Please note that the following compression rates are only used to demonstrate the parameter format, which may not be used in our experiment. For the specific pruning rate, please refer to the configuration files of pruned model in the next section)
 

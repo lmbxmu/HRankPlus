@@ -5,6 +5,7 @@ import time
 import torch
 import argparse
 import math
+from collections import OrderedDict
 from thop import profile
 import pdb
 
@@ -45,7 +46,6 @@ parser.add_argument(
     type=str,
     default='./models',
     help='path for saving trained models')
-
 
 parser.add_argument(
     '--batch_size',
@@ -150,7 +150,7 @@ CLASSES = 1000
 print_freq = 128000//args.batch_size
 
 if not os.path.isdir(args.job_dir):
-    os.mkdir(args.job_dir)
+    os.makedirs(args.job_dir)
 
 utils.record_config(args)
 logger = utils.get_logger(os.path.join(args.job_dir, 'logger.log'))
@@ -548,7 +548,6 @@ def main():
             else:
                 model.load_state_dict(checkpoint)
             valid_obj, valid_top1_acc, valid_top5_acc = validate(0, val_loader, model, criterion, args)
-            val_loader.reset()
         else:
             logger.info('please specify a checkpoint file')
 
@@ -580,14 +579,25 @@ def main():
     best_top1_acc= 0
 
     # load the checkpoint if it exists
-    checkpoint_tar = os.path.join(args.job_dir, 'checkpoint.pth.tar')
-    if os.path.exists(checkpoint_tar):
-        logger.info('loading checkpoint {} ..........'.format(checkpoint_tar))
-        checkpoint = torch.load(checkpoint_tar)
+    checkpoint_dir = os.path.join(args.job_dir, 'checkpoint.pth.tar')
+    if os.path.exists(checkpoint_dir):
+        logger.info('loading checkpoint {} ..........'.format(checkpoint_dir))
+        checkpoint = torch.load(checkpoint_dir)
         start_epoch = checkpoint['epoch']
         best_top1_acc = checkpoint['best_top1_acc']
-        model.load_state_dict(checkpoint['state_dict'])
-        logger.info("loaded checkpoint {} epoch = {}".format(checkpoint_tar, checkpoint['epoch']))  # '''
+
+        #deal with the single-multi GPU problem
+        new_state_dict = OrderedDict()
+        tmp_ckpt = checkpoint['state_dict']
+        if len(args.gpu) > 1:
+            for k, v in tmp_ckpt.items():
+                new_state_dict['module.' + k.replace('module.', '')] = v
+        else:
+            for k, v in tmp_ckpt.items():
+                new_state_dict[k.replace('module.', '')] = v
+
+        model.load_state_dict(new_state_dict)
+        logger.info("loaded checkpoint {} epoch = {}".format(checkpoint_dir, checkpoint['epoch']))
     else:
         if args.use_pretrain:
             logger.info('resuming from pretrain model')
@@ -614,8 +624,9 @@ def main():
     while epoch < args.epochs:
         train_obj, train_top1_acc,  train_top5_acc = train(epoch,  train_loader, model, criterion_smooth, optimizer)
         valid_obj, valid_top1_acc, valid_top5_acc = validate(epoch, val_loader, model, criterion, args)
-        train_loader.reset()
-        val_loader.reset()
+        if args.use_dali:
+            train_loader.reset()
+            val_loader.reset()
 
         is_best = False
         if valid_top1_acc > best_top1_acc:
