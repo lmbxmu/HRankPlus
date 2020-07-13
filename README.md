@@ -66,6 +66,7 @@ python evaluate_cifar.py \
 ```shell
 python evaluate.py \
 --data_dir [ImageNet dataset dir] \
+--use_dali \
 --job_dir ./result/[model name]/[folder name] \
 --arch [model name](resnet_50, mobilenet_v1, mobilenet_v2) \
 --rank_conv_prefix [rank folder dir] \

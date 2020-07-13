@@ -17,6 +17,7 @@ from models.imagenet.resnet import resnet_50
 from models.imagenet.mobilenetv1 import mobilenet_v1
 from models.imagenet.mobilenetv2 import mobilenet_v2
 
+from data import imagenet
 from data import imagenet_dali
 import utils.common as utils
 
@@ -27,6 +28,11 @@ parser.add_argument(
     type=str,
     default='',
     help='path to dataset')
+
+parser.add_argument(
+    '--use_dali',
+    action='store_true',
+    help='whether use dali module to load data')
 
 parser.add_argument(
     '--arch',
@@ -141,7 +147,6 @@ args = parser.parse_args()
 os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
 
 CLASSES = 1000
-#print_freq = (64*128000)//args.batch_size
 print_freq = 128000//args.batch_size
 
 if not os.path.isdir(args.job_dir):
@@ -519,15 +524,20 @@ def main():
 
     # load training data
     print('==> Preparing data..')
-    def get_data_set(type='train'):
-        if type == 'train':
-            return imagenet_dali.get_imagenet_iter_dali('train', args.data_dir, args.batch_size,
-                                                        num_threads=4, crop=224, device_id=0, num_gpus=1)
-        else:
-            return imagenet_dali.get_imagenet_iter_dali('val', args.data_dir, args.batch_size,
-                                                        num_threads=4, crop=224, device_id=0, num_gpus=1)
-    train_loader = get_data_set('train')
-    val_loader = get_data_set('val')
+    if args.use_dali:
+        def get_data_set(type='train'):
+            if type == 'train':
+                return imagenet_dali.get_imagenet_iter_dali('train', args.data_dir, args.batch_size,
+                                                            num_threads=4, crop=224, device_id=0, num_gpus=1)
+            else:
+                return imagenet_dali.get_imagenet_iter_dali('val', args.data_dir, args.batch_size,
+                                                            num_threads=4, crop=224, device_id=0, num_gpus=1)
+        train_loader = get_data_set('train')
+        val_loader = get_data_set('val')
+    else:
+        data_tmp = imagenet.Data(args)
+        train_loader = data_tmp.train_loader
+        val_loader = data_tmp.test_loader
 
     if args.test_only:
         if os.path.isfile(args.test_model_dir):
@@ -636,42 +646,83 @@ def train(epoch, train_loader, model, criterion, optimizer):
     end = time.time()
     #scheduler.step()
 
-    num_iter = train_loader._size // args.batch_size
+    if args.use_dali:
+        num_iter = train_loader._size // args.batch_size
+    else:
+        num_iter = len(train_loader)
+
     print_freq = num_iter // 10
-    for batch_idx, batch_data in enumerate(train_loader):
-        images = batch_data[0]['data'].cuda()
-        targets = batch_data[0]['label'].squeeze().long().cuda()
-        data_time.update(time.time() - end)
 
-        adjust_learning_rate(optimizer, epoch, batch_idx, num_iter)
+    if args.use_dali:
+        for batch_idx, batch_data in enumerate(train_loader):
+            images = batch_data[0]['data'].cuda()
+            targets = batch_data[0]['label'].squeeze().long().cuda()
+            data_time.update(time.time() - end)
 
-        # compute output
-        logits = model(images)
-        loss = criterion(logits, targets)
+            adjust_learning_rate(optimizer, epoch, batch_idx, num_iter)
 
-        # measure accuracy and record loss
-        prec1, prec5 = utils.accuracy(logits, targets, topk=(1, 5))
-        n = images.size(0)
-        losses.update(loss.item(), n)   #accumulated loss
-        top1.update(prec1.item(), n)
-        top5.update(prec5.item(), n)
+            # compute output
+            logits = model(images)
+            loss = criterion(logits, targets)
 
-        # compute gradient and do SGD step
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+            # measure accuracy and record loss
+            prec1, prec5 = utils.accuracy(logits, targets, topk=(1, 5))
+            n = images.size(0)
+            losses.update(loss.item(), n)   #accumulated loss
+            top1.update(prec1.item(), n)
+            top5.update(prec5.item(), n)
 
-        # measure elapsed time
-        batch_time.update(time.time() - end)
-        end = time.time()
+            # compute gradient and do SGD step
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
 
-        if batch_idx % print_freq == 0 and batch_idx != 0:
-            logger.info(
-                'Epoch[{0}]({1}/{2}): '
-                'Loss {loss.avg:.4f} '
-                'Prec@1(1,5) {top1.avg:.2f}, {top5.avg:.2f}'.format(
-                    epoch, batch_idx, num_iter, loss=losses,
-                    top1=top1, top5=top5))
+            # measure elapsed time
+            batch_time.update(time.time() - end)
+            end = time.time()
+
+            if batch_idx % print_freq == 0 and batch_idx != 0:
+                logger.info(
+                    'Epoch[{0}]({1}/{2}): '
+                    'Loss {loss.avg:.4f} '
+                    'Prec@1(1,5) {top1.avg:.2f}, {top5.avg:.2f}'.format(
+                        epoch, batch_idx, num_iter, loss=losses,
+                        top1=top1, top5=top5))
+    else:
+        for batch_idx, (images, targets) in enumerate(train_loader):
+            images = images.cuda()
+            targets = targets.cuda()
+            data_time.update(time.time() - end)
+
+            adjust_learning_rate(optimizer, epoch, batch_idx, num_iter)
+
+            # compute output
+            logits = model(images)
+            loss = criterion(logits, targets)
+
+            # measure accuracy and record loss
+            prec1, prec5 = utils.accuracy(logits, targets, topk=(1, 5))
+            n = images.size(0)
+            losses.update(loss.item(), n)  # accumulated loss
+            top1.update(prec1.item(), n)
+            top5.update(prec5.item(), n)
+
+            # compute gradient and do SGD step
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
+            # measure elapsed time
+            batch_time.update(time.time() - end)
+            end = time.time()
+
+            if batch_idx % print_freq == 0 and batch_idx != 0:
+                logger.info(
+                    'Epoch[{0}]({1}/{2}): '
+                    'Loss {loss.avg:.4f} '
+                    'Prec@1(1,5) {top1.avg:.2f}, {top5.avg:.2f}'.format(
+                        epoch, batch_idx, num_iter, loss=losses,
+                        top1=top1, top5=top5))
 
     return losses.avg, top1.avg, top5.avg
 
@@ -681,28 +732,52 @@ def validate(epoch, val_loader, model, criterion, args):
     top1 = utils.AverageMeter('Acc@1', ':6.2f')
     top5 = utils.AverageMeter('Acc@5', ':6.2f')
 
-    num_iter = val_loader._size // args.batch_size
+    if args.use_dali:
+        num_iter = val_loader._size // args.batch_size
+    else:
+        num_iter = len(val_loader)
+
     model.eval()
     with torch.no_grad():
         end = time.time()
-        for batch_idx, batch_data in enumerate(val_loader):
-            images = batch_data[0]['data'].cuda()
-            targets = batch_data[0]['label'].squeeze().long().cuda()
+        if args.use_dali:
+            for batch_idx, batch_data in enumerate(val_loader):
+                images = batch_data[0]['data'].cuda()
+                targets = batch_data[0]['label'].squeeze().long().cuda()
 
-            # compute output
-            logits = model(images)
-            loss = criterion(logits, targets)
+                # compute output
+                logits = model(images)
+                loss = criterion(logits, targets)
 
-            # measure accuracy and record loss
-            pred1, pred5 = utils.accuracy(logits, targets, topk=(1, 5))
-            n = images.size(0)
-            losses.update(loss.item(), n)
-            top1.update(pred1[0], n)
-            top5.update(pred5[0], n)
+                # measure accuracy and record loss
+                pred1, pred5 = utils.accuracy(logits, targets, topk=(1, 5))
+                n = images.size(0)
+                losses.update(loss.item(), n)
+                top1.update(pred1[0], n)
+                top5.update(pred5[0], n)
 
-            # measure elapsed time
-            batch_time.update(time.time() - end)
-            end = time.time()
+                # measure elapsed time
+                batch_time.update(time.time() - end)
+                end = time.time()
+        else:
+            for batch_idx, (images, targets) in enumerate(val_loader):
+                images = images.cuda()
+                targets = targets.cuda()
+
+                # compute output
+                logits = model(images)
+                loss = criterion(logits, targets)
+
+                # measure accuracy and record loss
+                pred1, pred5 = utils.accuracy(logits, targets, topk=(1, 5))
+                n = images.size(0)
+                losses.update(loss.item(), n)
+                top1.update(pred1[0], n)
+                top5.update(pred5[0], n)
+
+                # measure elapsed time
+                batch_time.update(time.time() - end)
+                end = time.time()
 
         logger.info(' * Acc@1 {top1.avg:.3f} Acc@5 {top5.avg:.3f}'
                     .format(top1=top1, top5=top5))

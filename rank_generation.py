@@ -449,13 +449,17 @@ elif args.arch=='mobilenet_v2':
 
     cnt=1
     for i in range(1,19):
-        block = eval('net.features[%d].conv' % (i))
-        relu_list=[2,5,7]
+
         if i==1:
+            block = eval('net.features[%d].conv' % (i))
             relu_list=[2,4]
-        if i==18:
-            relu_list=[2]
+        elif i==18:
             block = eval('net.features[%d]' % (i))
+            relu_list=[2]
+        else:
+            block = eval('net.features[%d].conv' % (i))
+            relu_list = [2,5,7]
+
         for j in relu_list:
             cov_layer = block[j]
             handler = cov_layer.register_forward_hook(get_feature_hook)

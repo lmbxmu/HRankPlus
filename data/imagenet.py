@@ -6,13 +6,13 @@ from torch.utils.data import DataLoader
 class Data:
     def __init__(self, args):
         pin_memory = False
-        if args.gpus is not None:
+        if args.gpu is not None:
             pin_memory = True
 
         scale_size = 224
 
-        traindir = os.path.join(args.data_path, 'ILSVRC2012_img_train')
-        valdir = os.path.join(args.data_path, 'val')
+        traindir = os.path.join(args.data_dir, 'ILSVRC2012_img_train')
+        valdir = os.path.join(args.data_dir, 'val')
         normalize = transforms.Normalize(
             mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 
@@ -26,9 +26,9 @@ class Data:
                 normalize,
             ]))
 
-        self.trainLoader = DataLoader(
+        self.train_loader = DataLoader(
             trainset,
-            batch_size=args.train_batch_size,
+            batch_size=args.batch_size,
             shuffle=True,
             num_workers=4,
             pin_memory=pin_memory)
@@ -43,9 +43,9 @@ class Data:
                 normalize,
             ]))
 
-        self.testLoader = DataLoader(
+        self.test_loader = DataLoader(
             testset,
-            batch_size=args.eval_batch_size,
+            batch_size=args.batch_size,
             shuffle=False,
             num_workers=4,
             pin_memory=True)
