@@ -55,6 +55,7 @@ python evaluate_cifar.py \
 --data_dir [CIFAR-10 dataset dir] \
 --job_dir ./result/[model name]/[folder name] \
 --arch [model name](vgg_16_bn, resnet_56, resnet_110, googlenet, densenet_40) \
+--rank_conv_prefix [rank folder dir] \
 --use_pretrain \
 --pretrain_dir [pre-trained model dir] \
 --compress_rate [compress rate] \
@@ -99,7 +100,6 @@ optional arguments:
     --pretrain_dir			Pretrained model directory.
     --test_only				If this parameter exist, only validate the model performance without training.
     --test_model_dir			Test model directory
-    -j, --workers 			The number of data loading workers. default: 4
     --gpu	 			Select gpu to use. default: 0
 ```
 

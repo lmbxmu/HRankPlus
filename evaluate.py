@@ -75,7 +75,7 @@ parser.add_argument(
     '--lr_type',
     default='step',
     type=str,
-    help='learning rate decay step')
+    help='learning rate decay schedule')
 
 parser.add_argument(
     '--momentum',
@@ -99,7 +99,7 @@ parser.add_argument(
 parser.add_argument(
     '--use_pretrain',
     action='store_true',
-    help='adjust ckpt from pruned checkpoint')
+    help='whether use pretrain model')
 
 parser.add_argument(
     '--pretrain_dir',
@@ -111,7 +111,7 @@ parser.add_argument(
     '--rank_conv_prefix',
     type=str,
     default='',
-    help='pretrain model path')
+    help='rank conv file folder')
 
 parser.add_argument(
     '--compress_rate',
@@ -129,13 +129,6 @@ parser.add_argument(
     type=str,
     default='',
     help='test model path')
-
-parser.add_argument(
-    '-j', '--workers',
-    default=4,
-    type=int,
-    metavar='N',
-    help='number of data loading workers (default: 4)')
 
 parser.add_argument(
     '--gpu',
@@ -205,6 +198,7 @@ def load_resnet_model(model, oristate_dict):
         state_dict[name_base + conv_weight_name] = oriweight
         for bn_part in bn_part_name:
             state_dict[name_base + 'bn1' + bn_part] = oristate_dict['bn1'+bn_part]
+
     state_dict[name_base + 'bn1' + '.num_batches_tracked'] = oristate_dict['bn1' + '.num_batches_tracked']
 
     cnt+=1

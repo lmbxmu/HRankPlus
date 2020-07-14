@@ -86,13 +86,19 @@ parser.add_argument(
 parser.add_argument(
     '--use_pretrain',
     action='store_true',
-    help='adjust ckpt from pruned checkpoint')
+    help='whether use pretrain model')
 
 parser.add_argument(
     '--pretrain_dir',
     type=str,
     default='',
     help='pretrain model path')
+
+parser.add_argument(
+    '--rank_conv_prefix',
+    type=str,
+    default='',
+    help='rank conv file folder')
 
 parser.add_argument(
     '--compress_rate',
@@ -124,26 +130,32 @@ CLASSES = 10
 print_freq = (256*50)//args.batch_size
 
 if not os.path.isdir(args.job_dir):
-    os.mkdir(args.job_dir)
+    os.makedirs(args.job_dir)
 
 utils.record_config(args)
 logger = utils.get_logger(os.path.join(args.job_dir, 'logger.log'))
 
+#use for loading pretrain model
+if len(args.gpu)>1:
+    name_base='module.'
+else:
+    name_base=''
 
 def load_vgg_model(model, oristate_dict):
     state_dict = model.state_dict()
     last_select_index = None #Conv index selected in the previous layer
 
     cnt=0
-    prefix = "/home/zyc/HRank_Plus/rank_conv/vgg_16_bn/rank_conv"
+    prefix = args.rank_conv_prefix+'/rank_conv'
     subfix = ".npy"
     for name, module in model.named_modules():
+        name = name.replace('module.', '')
 
         if isinstance(module, nn.Conv2d):
 
             cnt+=1
             oriweight = oristate_dict[name + '.weight']
-            curweight = state_dict[name + '.weight']
+            curweight =state_dict[name_base+name + '.weight']
             orifilter_num = oriweight.size(0)
             currentfilter_num = curweight.size(0)
 
@@ -158,11 +170,11 @@ def load_vgg_model(model, oristate_dict):
                 if last_select_index is not None:
                     for index_i, i in enumerate(select_index):
                         for index_j, j in enumerate(last_select_index):
-                            state_dict[name + '.weight'][index_i][index_j] = \
+                            state_dict[name_base+name + '.weight'][index_i][index_j] = \
                                 oristate_dict[name + '.weight'][i][j]
                 else:
                     for index_i, i in enumerate(select_index):
-                        state_dict[name + '.weight'][index_i] = \
+                       state_dict[name_base+name + '.weight'][index_i] = \
                             oristate_dict[name + '.weight'][i]
 
                 last_select_index = select_index
@@ -170,10 +182,10 @@ def load_vgg_model(model, oristate_dict):
             elif last_select_index is not None:
                 for i in range(orifilter_num):
                     for index_j, j in enumerate(last_select_index):
-                        state_dict[name + '.weight'][i][index_j] = \
+                        state_dict[name_base+name + '.weight'][i][index_j] = \
                             oristate_dict[name + '.weight'][i][j]
             else:
-                state_dict[name + '.weight'] = oriweight
+                state_dict[name_base+name + '.weight'] = oriweight
                 last_select_index = None
 
     model.load_state_dict(state_dict)
@@ -191,10 +203,7 @@ def load_resnet_model(model, oristate_dict, layer):
 
     all_conv_weight = []
 
-    if layer==56:
-        prefix = "/home/zyc/HRank_Plus/rank_conv/resnet_56/rank_conv"
-    elif layer==110:
-        prefix = "/home/zyc/HRank_Plus/rank_conv/resnet_110/rank_conv"
+    prefix = args.rank_conv_prefix+'/rank_conv'
     subfix = ".npy"
 
     cnt=1
@@ -202,6 +211,7 @@ def load_resnet_model(model, oristate_dict, layer):
         layer_name = 'layer' + str(layer + 1) + '.'
         for k in range(num):
             for l in range(2):
+
                 cnt+=1
                 cov_id=cnt
 
@@ -209,7 +219,7 @@ def load_resnet_model(model, oristate_dict, layer):
                 conv_weight_name = conv_name + '.weight'
                 all_conv_weight.append(conv_weight_name)
                 oriweight = oristate_dict[conv_weight_name]
-                curweight = state_dict[conv_weight_name]
+                curweight =state_dict[name_base+conv_weight_name]
                 orifilter_num = oriweight.size(0)
                 currentfilter_num = curweight.size(0)
 
@@ -222,11 +232,11 @@ def load_resnet_model(model, oristate_dict, layer):
                     if last_select_index is not None:
                         for index_i, i in enumerate(select_index):
                             for index_j, j in enumerate(last_select_index):
-                                state_dict[conv_weight_name][index_i][index_j] = \
+                                state_dict[name_base+conv_weight_name][index_i][index_j] = \
                                     oristate_dict[conv_weight_name][i][j]
                     else:
                         for index_i, i in enumerate(select_index):
-                            state_dict[conv_weight_name][index_i] = \
+                            state_dict[name_base+conv_weight_name][index_i] = \
                                 oristate_dict[conv_weight_name][i]
 
                     last_select_index = select_index
@@ -234,25 +244,27 @@ def load_resnet_model(model, oristate_dict, layer):
                 elif last_select_index is not None:
                     for index_i in range(orifilter_num):
                         for index_j, j in enumerate(last_select_index):
-                            state_dict[conv_weight_name][index_i][index_j] = \
+                            state_dict[name_base+conv_weight_name][index_i][index_j] = \
                                 oristate_dict[conv_weight_name][index_i][j]
                     last_select_index = None
 
                 else:
-                    state_dict[conv_weight_name] = oriweight
+                    state_dict[name_base+conv_weight_name] = oriweight
                     last_select_index = None
 
     for name, module in model.named_modules():
+        name = name.replace('module.', '')
+
         if isinstance(module, nn.Conv2d):
             conv_name = name + '.weight'
             if 'shortcut' in name:
                 continue
             if conv_name not in all_conv_weight:
-                state_dict[conv_name] = oristate_dict[conv_name]
+                state_dict[name_base+conv_name] = oristate_dict[conv_name]
 
         elif isinstance(module, nn.Linear):
-            state_dict[name + '.weight'] = oristate_dict[name + '.weight']
-            state_dict[name + '.bias'] = oristate_dict[name + '.bias']
+            state_dict[name_base+name + '.weight'] = oristate_dict[name + '.weight']
+            state_dict[name_base+name + '.bias'] = oristate_dict[name + '.bias']
 
     model.load_state_dict(state_dict)
 
@@ -277,9 +289,11 @@ def load_google_model(model, oristate_dict):
     cur_last_select_index = []
 
     cnt=0
-    prefix = "/home/zyc/HRank_Plus/rank_conv/googlenet/rank_conv"
+    prefix = args.rank_conv_prefix+'/rank_conv'
     subfix = ".npy"
     for name, module in model.named_modules():
+        name = name.replace('module.', '')
+
         if isinstance(module, Inception):
 
             cnt += 1
@@ -325,7 +339,7 @@ def load_google_model(model, oristate_dict):
                 all_honey_conv_name.append(name + weight_index)
 
                 oriweight = oristate_dict[conv_name]
-                curweight = state_dict[conv_name]
+                curweight =state_dict[name_base+conv_name]
                 orifilter_num = oriweight.size(1)
                 currentfilter_num = curweight.size(1)
 
@@ -334,16 +348,16 @@ def load_google_model(model, oristate_dict):
                 else:
                     select_index = list(range(0, orifilter_num))
 
-                for i in range(state_dict[conv_name].size(0)):
+                for i in range(state_dict[name_base+conv_name].size(0)):
                     for index_j, j in enumerate(select_index):
-                        state_dict[conv_name][i][index_j] = \
+                        state_dict[name_base+conv_name][i][index_j] = \
                             oristate_dict[conv_name][i][j]
 
                 if branch_name=='_n1x1':
-                    tmp_select_index = list(range(state_dict[conv_name].size(0)))
+                    tmp_select_index = list(range(state_dict[name_base+conv_name].size(0)))
                     cur_last_select_index += tmp_select_index
                 if branch_name=='_pool_planes':
-                    tmp_select_index = list(range(state_dict[conv_name].size(0)))
+                    tmp_select_index = list(range(state_dict[name_base+conv_name].size(0)))
                     tmp_select_index = [x+filters[cov_id-2][0]+filters[cov_id-2][1]+filters[cov_id-2][2] for x in tmp_select_index]
                     cur_last_select_index += tmp_select_index
 
@@ -362,7 +376,7 @@ def load_google_model(model, oristate_dict):
 
                 all_honey_conv_name.append(name + weight_index)
                 oriweight = oristate_dict[conv_name]
-                curweight = state_dict[conv_name]
+                curweight =state_dict[name_base+conv_name]
 
                 orifilter_num = oriweight.size(0)
                 currentfilter_num = curweight.size(0)
@@ -376,7 +390,7 @@ def load_google_model(model, oristate_dict):
                     select_index = list(range(0, orifilter_num))
 
                 for index_i, i in enumerate(select_index):
-                    state_dict[conv_name][index_i] = \
+                    state_dict[name_base+conv_name][index_i] = \
                         oristate_dict[conv_name][i]
 
                 if branch_name=='_n3x3':
@@ -400,7 +414,7 @@ def load_google_model(model, oristate_dict):
                 all_honey_conv_name.append(name + weight_index)
 
                 oriweight = oristate_dict[conv_name]
-                curweight = state_dict[conv_name]
+                curweight = state_dict[name_base+conv_name]
 
                 orifilter_num = oriweight.size(1)
                 currentfilter_num = curweight.size(1)
@@ -430,7 +444,7 @@ def load_google_model(model, oristate_dict):
 
                 for index_i, i in enumerate(select_index):
                     for index_j, j in enumerate(select_index_1):
-                        state_dict[conv_name][index_i][index_j] = \
+                        state_dict[name_base+conv_name][index_i][index_j] = \
                             oristate_dict[conv_name][i][j]
 
         elif name=='pre_layers':
@@ -450,7 +464,7 @@ def load_google_model(model, oristate_dict):
 
                 all_honey_conv_name.append(name + weight_index)
                 oriweight = oristate_dict[conv_name]
-                curweight = state_dict[conv_name]
+                curweight =state_dict[name_base+conv_name]
 
                 orifilter_num = oriweight.size(0)
                 currentfilter_num = curweight.size(0)
@@ -463,28 +477,28 @@ def load_google_model(model, oristate_dict):
                     cur_last_select_index = select_index[:]
 
                     for index_i, i in enumerate(select_index):
-                        state_dict[conv_name][index_i] = \
+                       state_dict[name_base+conv_name][index_i] = \
                             oristate_dict[conv_name][i]#'''
 
     for name, module in model.named_modules():  # Reassign non sketch weights to the new network
+        name = name.replace('module.', '')
 
         if isinstance(module, nn.Conv2d):
-
             if name not in all_honey_conv_name:
-                state_dict[name + '.weight'] = oristate_dict[name + '.weight']
-                state_dict[name + '.bias'] = oristate_dict[name + '.bias']
+                state_dict[name_base+name + '.weight'] = oristate_dict[name + '.weight']
+                state_dict[name_base+name + '.bias'] = oristate_dict[name + '.bias']
 
         elif isinstance(module, nn.BatchNorm2d):
 
             if name not in all_honey_bn_name:
-                state_dict[name + '.weight'] = oristate_dict[name + '.weight']
-                state_dict[name + '.bias'] = oristate_dict[name + '.bias']
-                state_dict[name + '.running_mean'] = oristate_dict[name + '.running_mean']
-                state_dict[name + '.running_var'] = oristate_dict[name + '.running_var']
+                state_dict[name_base+name + '.weight'] = oristate_dict[name + '.weight']
+                state_dict[name_base+name + '.bias'] = oristate_dict[name + '.bias']
+                state_dict[name_base+name + '.running_mean'] = oristate_dict[name + '.running_mean']
+                state_dict[name_base+name + '.running_var'] = oristate_dict[name + '.running_var']
 
         elif isinstance(module, nn.Linear):
-            state_dict[name + '.weight'] = oristate_dict[name + '.weight']
-            state_dict[name + '.bias'] = oristate_dict[name + '.bias']
+            state_dict[name_base+name + '.weight'] = oristate_dict[name + '.weight']
+            state_dict[name_base+name + '.bias'] = oristate_dict[name + '.bias']
 
     model.load_state_dict(state_dict)
 
@@ -494,16 +508,17 @@ def load_densenet_model(model, oristate_dict):
     last_select_index = [] #Conv index selected in the previous layer
 
     cnt=0
-    prefix = "/home/zyc/HRank_Plus/rank_conv/densenet_40/rank_conv"
+    prefix = args.rank_conv_prefix+'/rank_conv'
     subfix = ".npy"
     for name, module in model.named_modules():
+        name = name.replace('module.', '')
 
         if isinstance(module, nn.Conv2d):
 
             cnt+=1
             cov_id = cnt
             oriweight = oristate_dict[name + '.weight']
-            curweight = state_dict[name + '.weight']
+            curweight = state_dict[name_base+name + '.weight']
             orifilter_num = oriweight.size(0)
             currentfilter_num = curweight.size(0)
 
@@ -516,23 +531,23 @@ def load_densenet_model(model, oristate_dict):
                 if last_select_index is not None:
                     for index_i, i in enumerate(select_index):
                         for index_j, j in enumerate(last_select_index):
-                            state_dict[name + '.weight'][index_i][index_j] = \
+                            state_dict[name_base+name + '.weight'][index_i][index_j] = \
                                 oristate_dict[name + '.weight'][i][j]
                 else:
                     for index_i, i in enumerate(select_index):
-                        state_dict[name + '.weight'][index_i] = \
+                        state_dict[name_base+name + '.weight'][index_i] = \
                             oristate_dict[name + '.weight'][i]
 
             elif last_select_index is not None:
                 for i in range(orifilter_num):
                     for index_j, j in enumerate(last_select_index):
-                        state_dict[name + '.weight'][i][index_j] = \
+                        state_dict[name_base+name + '.weight'][i][index_j] = \
                             oristate_dict[name + '.weight'][i][j]
                 select_index = list(range(0, orifilter_num))
 
             else:
                 select_index = list(range(0, orifilter_num))
-                state_dict[name + '.weight'] = oriweight
+                state_dict[name_base+name + '.weight'] = oriweight
 
             if cov_id==1 or cov_id==14 or cov_id==27:
                 last_select_index = select_index
@@ -597,6 +612,12 @@ def main():
             logger.info('please specify a checkpoint file')
         return
 
+    if len(args.gpu) > 1:
+        device_id = []
+        for i in range((len(args.gpu) + 1) // 2):
+            device_id.append(i)
+        model = nn.DataParallel(model, device_ids=device_id).cuda()
+
     optimizer = torch.optim.SGD(model.parameters(), lr=args.learning_rate, momentum=args.momentum, weight_decay=args.weight_decay)
     lr_decay_step = list(map(int, args.lr_decay_step.split(',')))
     scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=lr_decay_step, gamma=0.1)
@@ -605,14 +626,25 @@ def main():
     best_top1_acc= 0
 
     # load the checkpoint if it exists
-    checkpoint_tar = os.path.join(args.job_dir, 'checkpoint.pth.tar')
-    if os.path.exists(checkpoint_tar):
-        logger.info('loading checkpoint {} ..........'.format(checkpoint_tar))
-        checkpoint = torch.load(checkpoint_tar)
-        start_epoch = checkpoint['epoch']+1
+    checkpoint_dir = os.path.join(args.job_dir, 'checkpoint.pth.tar')
+    if os.path.exists(checkpoint_dir):
+        logger.info('loading checkpoint {} ..........'.format(checkpoint_dir))
+        checkpoint = torch.load(checkpoint_dir)
+        start_epoch = checkpoint['epoch'] + 1
         best_top1_acc = checkpoint['best_top1_acc']
-        model.load_state_dict(checkpoint['state_dict'])
-        logger.info("loaded checkpoint {} epoch = {}" .format(checkpoint_tar, checkpoint['epoch']))#'''
+
+        # deal with the single-multi GPU problem
+        new_state_dict = OrderedDict()
+        tmp_ckpt = checkpoint['state_dict']
+        if len(args.gpu) > 1:
+            for k, v in tmp_ckpt.items():
+                new_state_dict['module.' + k.replace('module.', '')] = v
+        else:
+            for k, v in tmp_ckpt.items():
+                new_state_dict[k.replace('module.', '')] = v
+
+        model.load_state_dict(new_state_dict)
+        logger.info("loaded checkpoint {} epoch = {}".format(checkpoint_dir, checkpoint['epoch']))
     else:
         if args.use_pretrain:
             logger.info('resuming from pretrain model')
@@ -650,7 +682,6 @@ def main():
     for epoch in range(start_epoch):
         scheduler.step()
 
-
     # train the model
     epoch = start_epoch
     while epoch < args.epochs:
@@ -682,7 +713,6 @@ def train(epoch, train_loader, model, criterion, optimizer, scheduler):
 
     model.train()
     end = time.time()
-    scheduler.step()
 
     for param_group in optimizer.param_groups:
         cur_lr = param_group['lr']
@@ -721,6 +751,8 @@ def train(epoch, train_loader, model, criterion, optimizer, scheduler):
                 'Prec@1(1,5) {top1.avg:.2f}, {top5.avg:.2f}'.format(
                     epoch, i, num_iter, loss=losses,
                     top1=top1, top5=top5))
+
+    scheduler.step()
 
     return losses.avg, top1.avg, top5.avg
 
