@@ -1,7 +1,7 @@
 
 import os
 import numpy as np
-import time
+import time, datetime
 import torch
 import argparse
 import math
@@ -95,6 +95,10 @@ parser.add_argument(
     default=0.1,
     help='label smoothing')
 
+parser.add_argument(
+    '--resume',
+    action='store_true',
+    help='whether continue training from the same directory')
 
 parser.add_argument(
     '--use_pretrain',
@@ -146,7 +150,8 @@ if not os.path.isdir(args.job_dir):
     os.makedirs(args.job_dir)
 
 utils.record_config(args)
-logger = utils.get_logger(os.path.join(args.job_dir, 'logger.log'))
+now = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
+logger = utils.get_logger(os.path.join(args.job_dir, 'logger'+now+'.log'))
 
 #use for loading pretrain model
 if len(args.gpu)>1:
@@ -621,7 +626,7 @@ def main():
 
     # load the checkpoint if it exists
     checkpoint_dir = os.path.join(args.job_dir, 'checkpoint.pth.tar')
-    if os.path.exists(checkpoint_dir):
+    if args.resume:
         logger.info('loading checkpoint {} ..........'.format(checkpoint_dir))
         checkpoint = torch.load(checkpoint_dir)
         start_epoch = checkpoint['epoch']+1

@@ -30,11 +30,18 @@ class record_config():
 
         config_dir = self.job_dir / 'config.txt'
         #if not os.path.exists(config_dir):
-        with open(config_dir, 'w') as f:
-            f.write(now + '\n\n')
-            for arg in vars(args):
-                f.write('{}: {}\n'.format(arg, getattr(args, arg)))
-            f.write('\n')
+        if args.resume:
+            with open(config_dir, 'a') as f:
+                f.write(now + '\n\n')
+                for arg in vars(args):
+                    f.write('{}: {}\n'.format(arg, getattr(args, arg)))
+                f.write('\n')
+        else:
+            with open(config_dir, 'w') as f:
+                f.write(now + '\n\n')
+                for arg in vars(args):
+                    f.write('{}: {}\n'.format(arg, getattr(args, arg)))
+                f.write('\n')
 
 
 def get_logger(file_path):
