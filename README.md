@@ -97,7 +97,7 @@ optional arguments:
     --weight_decay 			The weight decay of loss function. default: 1e-4
     --label_smooth			Label smooth parameter. default: 0.1
     
-    --resume					If this parameter exists, model training by resuming from previous ckpt in the same directory.
+    --resume				If this parameter exists, model training by resuming from previous ckpt in the same directory.
     --use_dali 				If this parameter exists, use dali module to load ImageNet data.
     --use_pretrain			If this parameter exists, use pretrained model for finetuning.
     --pretrain_dir			Pretrained model directory.
