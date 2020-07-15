@@ -13,8 +13,6 @@ import torch.nn as nn
 import torch.utils
 
 
-
-
 '''record configurations'''
 class record_config():
     def __init__(self, args):
@@ -31,12 +29,12 @@ class record_config():
         _make_dir(self.job_dir)
 
         config_dir = self.job_dir / 'config.txt'
-        if not os.path.exists(config_dir):
-            with open(config_dir, 'w') as f:
-                f.write(now + '\n\n')
-                for arg in vars(args):
-                    f.write('{}: {}\n'.format(arg, getattr(args, arg)))
-                f.write('\n')
+        #if not os.path.exists(config_dir):
+        with open(config_dir, 'w') as f:
+            f.write(now + '\n\n')
+            for arg in vars(args):
+                f.write('{}: {}\n'.format(arg, getattr(args, arg)))
+            f.write('\n')
 
 
 def get_logger(file_path):
@@ -148,15 +146,14 @@ def accuracy(output, target, topk=(1,)):
 
 
 
-
-_, term_width = os.popen('stty size', 'r').read().split()
-term_width = int(term_width)
-
-TOTAL_BAR_LENGTH = 65.
-last_time = time.time()
-begin_time = last_time
 def progress_bar(current, total, msg=None):
-    global last_time, begin_time
+    _, term_width = os.popen('stty size', 'r').read().split()
+    term_width = int(term_width)
+
+    TOTAL_BAR_LENGTH = 65.
+    last_time = time.time()
+    begin_time = last_time
+
     if current == 0:
         begin_time = time.time()  # Reset for new bar.
 
