@@ -623,6 +623,7 @@ def main():
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer=optimizer, T_max=100, eta_min=0.0004)#'''
     start_epoch = 0
     best_top1_acc= 0
+    best_top5_acc= 0
 
     # load the checkpoint if it exists
     checkpoint_dir = os.path.join(args.job_dir, 'checkpoint.pth.tar')
@@ -631,6 +632,8 @@ def main():
         checkpoint = torch.load(checkpoint_dir)
         start_epoch = checkpoint['epoch']+1
         best_top1_acc = checkpoint['best_top1_acc']
+        if 'best_top5_acc' in checkpoint:
+            best_top5_acc = checkpoint['best_top5_acc']
 
         #deal with the single-multi GPU problem
         new_state_dict = OrderedDict()
@@ -677,17 +680,19 @@ def main():
         is_best = False
         if valid_top1_acc > best_top1_acc:
             best_top1_acc = valid_top1_acc
+            best_top5_acc = valid_top5_acc
             is_best = True
 
         utils.save_checkpoint({
             'epoch': epoch,
             'state_dict': model.state_dict(),
             'best_top1_acc': best_top1_acc,
+            'best_top5_acc': best_top5_acc,
             'optimizer' : optimizer.state_dict(),
             }, is_best, args.job_dir)
 
         epoch += 1
-        logger.info("=>Best accuracy {:.3f}".format(best_top1_acc))
+        logger.info("=>Best accuracy Top1: {:.3f}, Top5: {:.3f}".format(best_top1_acc, best_top5_acc))
 
     training_time = (time.time() - start_t) / 36000
     logger.info('total training time = {} hours'.format(training_time))

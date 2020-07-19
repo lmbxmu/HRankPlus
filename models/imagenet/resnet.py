@@ -46,11 +46,15 @@ class Bottleneck(nn.Module):
         norm_layer = nn.BatchNorm2d
         self.conv1 = conv1x1(inplanes, midplanes)
         self.bn1 = norm_layer(midplanes)
+        self.relu1 = nn.ReLU(inplace=True)
+
         self.conv2 = conv3x3(midplanes, midplanes, stride)
         self.bn2 = norm_layer(midplanes)
+        self.relu2 = nn.ReLU(inplace=True)
+
         self.conv3 = conv1x1(midplanes, planes)
         self.bn3 = norm_layer(planes)
-        self.relu = nn.ReLU(inplace=True)
+        self.relu3 = nn.ReLU(inplace=True)
 
         self.stride = stride
         self.inplanes = inplanes
@@ -71,11 +75,11 @@ class Bottleneck(nn.Module):
 
         out = self.conv1(x)
         out = self.bn1(out)
-        out = self.relu(out)
+        out = self.relu1(out)
 
         out = self.conv2(out)
         out = self.bn2(out)
-        out = self.relu(out)
+        out = self.relu2(out)
 
         out = self.conv3(out)
         out = self.bn3(out)
@@ -84,7 +88,7 @@ class Bottleneck(nn.Module):
             identity = self.downsample(x)
 
         out += identity
-        out = self.relu(out)
+        out = self.relu3(out)
 
         return out
 
@@ -93,6 +97,7 @@ class ResNet50(nn.Module):
         super(ResNet50, self).__init__()
 
         overall_channel, mid_channel = adapt_channel(compress_rate)
+        self.num_blocks = stage_repeat
 
         layer_num =0
         self.conv1 = nn.Conv2d(3, overall_channel[layer_num], kernel_size=7, stride=2, padding=3,

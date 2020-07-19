@@ -113,7 +113,7 @@ if args.pretrain_dir:
         checkpoint = torch.load(args.pretrain_dir, map_location='cuda:'+args.gpu)
     else:
         checkpoint = torch.load(args.pretrain_dir)
-    if args.arch=='mobilenet_v2':
+    if args.arch=='mobilenet_v2' or args.arch=='resnet_50':
         net.load_state_dict(checkpoint)
     elif args.arch=='densenet_40':
         from collections import OrderedDict
