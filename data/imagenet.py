@@ -30,7 +30,7 @@ class Data:
             trainset,
             batch_size=args.batch_size,
             shuffle=True,
-            num_workers=4,
+            num_workers=8,
             pin_memory=pin_memory)
 
         testset = datasets.ImageFolder(
@@ -47,5 +47,5 @@ class Data:
             testset,
             batch_size=args.batch_size,
             shuffle=False,
-            num_workers=4,
+            num_workers=8,
             pin_memory=True)
