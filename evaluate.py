@@ -5,6 +5,7 @@ import time, datetime
 import torch
 import argparse
 import math
+import shutil
 from collections import OrderedDict
 from thop import profile
 import pdb
@@ -149,9 +150,23 @@ print_freq = 128000//args.batch_size
 if not os.path.isdir(args.job_dir):
     os.makedirs(args.job_dir)
 
-utils.record_config(args)
+#save old training file
 now = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
-#logger = utils.get_logger(os.path.join(args.job_dir, 'logger'+now+'.log'))
+cp_file_dir = os.path.join(args.job_dir, 'cp_file' + now)
+if os.path.exists(args.job_dir+'/model_best.pth.tar'):
+    if not os.path.isdir(cp_file_dir):
+        os.mkdir(cp_file_dir)
+    shutil.copy(args.job_dir+'/config.txt', cp_file_dir)
+    shutil.copy(args.job_dir+'/logger.log', cp_file_dir)
+    shutil.copy(args.job_dir+'/model_best.pth.tar', cp_file_dir)
+    shutil.copy(args.job_dir + '/checkpoint.pth.tar', cp_file_dir)
+
+#whether to override the logger file
+if not args.resume:
+    if os.path.exists(args.job_dir+'/logger.log'):
+        os.remove(args.job_dir+'/logger.log')
+
+utils.record_config(args)
 logger = utils.get_logger(os.path.join(args.job_dir, 'logger.log'))
 
 #use for loading pretrain model
