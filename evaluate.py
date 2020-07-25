@@ -152,10 +152,10 @@ if not os.path.isdir(args.job_dir):
 
 #save old training file
 now = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
-cp_file_dir = os.path.join(args.job_dir, 'cp_file' + now)
+cp_file_dir = os.path.join(args.job_dir, 'cp_file/' + now)
 if os.path.exists(args.job_dir+'/model_best.pth.tar'):
     if not os.path.isdir(cp_file_dir):
-        os.mkdir(cp_file_dir)
+        os.makedirs(cp_file_dir)
     shutil.copy(args.job_dir+'/config.txt', cp_file_dir)
     shutil.copy(args.job_dir+'/logger.log', cp_file_dir)
     shutil.copy(args.job_dir+'/model_best.pth.tar', cp_file_dir)
