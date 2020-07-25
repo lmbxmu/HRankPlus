@@ -151,7 +151,8 @@ if not os.path.isdir(args.job_dir):
 
 utils.record_config(args)
 now = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
-logger = utils.get_logger(os.path.join(args.job_dir, 'logger'+now+'.log'))
+#logger = utils.get_logger(os.path.join(args.job_dir, 'logger'+now+'.log'))
+logger = utils.get_logger(os.path.join(args.job_dir, 'logger.log'))
 
 #use for loading pretrain model
 if len(args.gpu)>1:
@@ -585,18 +586,6 @@ def main():
         train_loader = data_tmp.train_loader
         val_loader = data_tmp.test_loader
 
-    if args.test_only:
-        if os.path.isfile(args.test_model_dir):
-            logger.info('loading checkpoint {} ..........'.format(args.test_model_dir))
-            checkpoint = torch.load(args.test_model_dir)
-            if 'state_dict' in checkpoint:
-                model.load_state_dict(checkpoint['state_dict'])
-            else:
-                model.load_state_dict(checkpoint)
-            valid_obj, valid_top1_acc, valid_top5_acc = validate(0, val_loader, model, criterion, args)
-        else:
-            logger.info('please specify a checkpoint file')
-
     # calculate model size
     input_image_size = 224
     input_image = torch.randn(1, 3, input_image_size, input_image_size).cuda()
@@ -605,6 +594,23 @@ def main():
     logger.info('Flops: %.2f' % (flops))
 
     if args.test_only:
+        if os.path.isfile(args.test_model_dir):
+            logger.info('loading checkpoint {} ..........'.format(args.test_model_dir))
+            checkpoint = torch.load(args.test_model_dir)
+            if 'state_dict' in checkpoint:
+                tmp_ckpt = checkpoint['state_dict']
+            else:
+                tmp_ckpt = checkpoint
+
+            new_state_dict = OrderedDict()
+            for k, v in tmp_ckpt.items():
+                new_state_dict[k.replace('module.', '')] = v
+            model.load_state_dict(new_state_dict)
+
+            valid_obj, valid_top1_acc, valid_top5_acc = validate(0, val_loader, model, criterion, args)
+        else:
+            logger.info('please specify a checkpoint file')
+
         return
 
     if len(args.gpu) > 1:
