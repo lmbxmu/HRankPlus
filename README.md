@@ -159,11 +159,11 @@ We provide our pre-trained models, and pruned models. For your ease of reproduci
 ##### ImageNet (Lacking GPUs... Coming as soon as Possible)
 | Architecture | Params        | Flops      | Use Dali | Lr Type | Top-1 Accuracy | Top-5 Accuracy | Model |
 |:----------:|:-------------:|:--------------:|:--------:|:------------------:|:------------------:|:----------------------------:|:---:|
-| ResNet-50  |       25.55M(0.0%)          |      4.11B(0.0%)      |  | |   76.15%      |       92.87%         | [pre-trained](https://drive.google.com/open?id=1OYpVB84BMU0y-KU7PdEPhbHwODmFvPbB)|
+| ResNet-50(baseline)  |       25.55M(0.0%)          |      4.11B(0.0%)      |  | |   76.15%      |       92.87%         | [pre-trained](https://drive.google.com/open?id=1OYpVB84BMU0y-KU7PdEPhbHwODmFvPbB)|
 | ResNet-50  |       15.09M(40.8%)          |      2.26B(44.8%)      |  No  | step |  75.56%      |       92.63%         | [pruned](https://drive.google.com/drive/folders/1vQsMbwxqtvWv44GE9Ni-ygn1eJNARn-_?usp=sharing)|
 | ResNet-50  |       11.05M(56.7%)          |      1.52B(62.8%)      |  Yes | step |   73.19%      |       91.05%         | [pruned](https://drive.google.com/drive/folders/1d5SYG3BUobbVVEbLipQ7XCnA0p--sRoH?usp=sharing)|
 | ResNet-50  |       8.02M(68.6%)          |      0.95B(76.7%)      |  Yes | step |   71.67%      |      89.98%         | [pruned](https://drive.google.com/drive/folders/1d5SYG3BUobbVVEbLipQ7XCnA0p--sRoH?usp=sharing)|
-| MobileNet-v2|      3.50M(0.0%)           |       314.13M(0.0%)     |   |  |    71.70%         |      90.43%          |  [pre-trained](https://drive.google.com/file/d/16YAmYG9u9NB6ztyzSz6e21qSKcr9AT6e/view?usp=sharing)  |
+| MobileNet-v2(baseline)|      3.50M(0.0%)           |       314.13M(0.0%)     |   |  |    71.70%         |      90.43%          |  [pre-trained](https://drive.google.com/file/d/16YAmYG9u9NB6ztyzSz6e21qSKcr9AT6e/view?usp=sharing)  |
 
 
 To verify our model performance, please use the command below (make sure you are using the corresponding compression rate in the configuration file of that model):
