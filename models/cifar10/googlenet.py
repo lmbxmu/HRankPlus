@@ -127,6 +127,7 @@ class GoogLeNet(nn.Module):
             [256, 320, 128, 128],
             [384, 384, 128, 128]
         ]
+        self.filters = filters
 
         mid_filters = [
             [96, 16],

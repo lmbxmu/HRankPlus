@@ -11,7 +11,7 @@ import torchvision
 from torchvision import datasets, transforms
 
 from models.cifar10.vgg import vgg_16_bn
-from models.cifar10.resnet import resnet_56
+from models.cifar10.resnet import resnet_56,resnet_110
 from models.cifar10.googlenet import googlenet
 from models.cifar10.densenet import densenet_40
 from models.imagenet.resnet import resnet_50

@@ -7,4 +7,5 @@ models/__pycache__
 models/coco
 .gitignore
 evaluate_cifar_ablation.py
+rank_generation_test.py
 rank_generation_detection.py
