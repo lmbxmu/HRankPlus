@@ -181,7 +181,7 @@ def inference():
     with torch.no_grad():
         #for batch_idx, (inputs, targets) in enumerate(train_loader):
         for batch_idx, batch_data in enumerate(train_loader):
-            # use the first 5 batches to estimate the rank.
+            #use the first 5 batches to estimate the rank.
             if batch_idx >= limit:
                break
 
