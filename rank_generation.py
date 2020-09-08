@@ -123,6 +123,9 @@ if args.pretrain_dir:
         net.load_state_dict(new_state_dict)
     else:
         net.load_state_dict(checkpoint['state_dict'])
+else:
+    print('please speicify a pretrain model ')
+    raise NotImplementedError
 
 criterion = nn.CrossEntropyLoss()
 feature_result = torch.tensor(0.)
@@ -179,26 +182,43 @@ def inference():
     limit = args.limit
 
     with torch.no_grad():
-        #for batch_idx, (inputs, targets) in enumerate(train_loader):
-        for batch_idx, batch_data in enumerate(train_loader):
-            #use the first 5 batches to estimate the rank.
-            if batch_idx >= limit:
-               break
+        if args.dataset=='cifar10':
+            for batch_idx, (inputs, targets) in enumerate(train_loader):
+                #use the first 5 batches to estimate the rank.
+                if batch_idx >= limit:
+                   break
 
-            images = batch_data[0]['data'].cuda()
-            targets = batch_data[0]['label'].squeeze().long().cuda()
-            #inputs, targets = inputs.to(device), targets.to(device)
+                inputs, targets = inputs.to(device), targets.to(device)
 
-            outputs = net(images)
-            loss = criterion(outputs, targets)
+                outputs = net(inputs)
+                loss = criterion(outputs, targets)
 
-            test_loss += loss.item()
-            _, predicted = outputs.max(1)
-            total += targets.size(0)
-            correct += predicted.eq(targets).sum().item()
+                test_loss += loss.item()
+                _, predicted = outputs.max(1)
+                total += targets.size(0)
+                correct += predicted.eq(targets).sum().item()
 
-            utils.progress_bar(batch_idx, limit, 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
-                % (test_loss/(batch_idx+1), 100.*correct/total, correct, total))#'''
+                utils.progress_bar(batch_idx, limit, 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
+                    % (test_loss/(batch_idx+1), 100.*correct/total, correct, total))#'''
+        else:#for imagenet
+            for batch_idx, batch_data in enumerate(train_loader):
+                # use the first 5 batches to estimate the rank.
+                if batch_idx >= limit:
+                    break
+
+                images = batch_data[0]['data'].cuda()
+                targets = batch_data[0]['label'].squeeze().long().cuda()
+
+                outputs = net(images)
+                loss = criterion(outputs, targets)
+
+                test_loss += loss.item()
+                _, predicted = outputs.max(1)
+                total += targets.size(0)
+                correct += predicted.eq(targets).sum().item()
+
+                utils.progress_bar(batch_idx, limit, 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
+                                   % (test_loss / (batch_idx + 1), 100. * correct / total, correct, total))  # '''
 
 
 if args.arch=='vgg_16_bn':
