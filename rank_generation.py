@@ -18,7 +18,7 @@ from models.imagenet.resnet import resnet_50
 from models.imagenet.mobilenetv2 import mobilenet_v2
 from models.imagenet.mobilenetv1 import mobilenet_v1
 
-from data import imagenet_dali
+from data import imagenet
 import utils.common as utils
 
 parser = argparse.ArgumentParser(description='Rank extraction')
@@ -88,11 +88,13 @@ if args.dataset=='cifar10':
     train_loader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size, shuffle=True, num_workers=2)
 
 elif args.dataset=='imagenet':
-    print('==> Preparing data..')
-    def get_data_set():
+    data_tmp = imagenet.Data(args)
+    train_loader = data_tmp.train_loader
+    val_loader = data_tmp.test_loader
+    '''def get_data_set():
         return imagenet_dali.get_imagenet_iter_dali('train', args.data_dir, args.batch_size,
                                                         num_threads=4, crop=224, device_id=0, num_gpus=1)
-    train_loader = get_data_set()
+    train_loader = get_data_set()'''
 
 # Model
 print('==> Building model..')
@@ -182,43 +184,24 @@ def inference():
     limit = args.limit
 
     with torch.no_grad():
-        if args.dataset=='cifar10':
-            for batch_idx, (inputs, targets) in enumerate(train_loader):
-                #use the first 5 batches to estimate the rank.
-                if batch_idx >= limit:
-                   break
+        for batch_idx, (inputs, targets) in enumerate(train_loader):
+            #use the first 5 batches to estimate the rank.
+            if batch_idx >= limit:
+               break
 
-                inputs, targets = inputs.to(device), targets.to(device)
+            inputs, targets = inputs.to(device), targets.to(device)
 
-                outputs = net(inputs)
-                loss = criterion(outputs, targets)
+            outputs = net(inputs)
+            loss = criterion(outputs, targets)
 
-                test_loss += loss.item()
-                _, predicted = outputs.max(1)
-                total += targets.size(0)
-                correct += predicted.eq(targets).sum().item()
+            test_loss += loss.item()
+            _, predicted = outputs.max(1)
+            total += targets.size(0)
+            correct += predicted.eq(targets).sum().item()
 
-                utils.progress_bar(batch_idx, limit, 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
-                    % (test_loss/(batch_idx+1), 100.*correct/total, correct, total))#'''
-        else:#for imagenet
-            for batch_idx, batch_data in enumerate(train_loader):
-                # use the first 5 batches to estimate the rank.
-                if batch_idx >= limit:
-                    break
+            utils.progress_bar(batch_idx, limit, 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
+                % (test_loss/(batch_idx+1), 100.*correct/total, correct, total))#'''
 
-                images = batch_data[0]['data'].cuda()
-                targets = batch_data[0]['label'].squeeze().long().cuda()
-
-                outputs = net(images)
-                loss = criterion(outputs, targets)
-
-                test_loss += loss.item()
-                _, predicted = outputs.max(1)
-                total += targets.size(0)
-                correct += predicted.eq(targets).sum().item()
-
-                utils.progress_bar(batch_idx, limit, 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
-                                   % (test_loss / (batch_idx + 1), 100. * correct / total, correct, total))  # '''
 
 
 if args.arch=='vgg_16_bn':
@@ -311,7 +294,7 @@ elif args.arch=='densenet_40':
 
             np.save('rank_conv/' + args.arch +'_limit%d'%(args.limit) + '/rank_conv%d' % (13 * (i+1)) + '.npy', feature_result.numpy())
             feature_result = torch.tensor(0.)
-            total = torch.tensor(0.)#'''
+            total = torch.tensor(0.)#
 
     cov_layer = net.relu
     handler = cov_layer.register_forward_hook(get_feature_hook_densenet)
@@ -426,7 +409,8 @@ elif args.arch=='resnet_50':
             handler = cov_layer.register_forward_hook(get_feature_hook)
             inference()
             handler.remove()
-            np.save('rank_conv/' + args.arch+'_limit%d'%(args.limit) + '/rank_conv%d'%(cnt+1)+'.npy', feature_result.numpy())
+            np.save('rank_conv/' + args.arch+'_limit%d'%(args.limit) + '/rank_conv%d'%(cnt+1)+'.npy',
+                    feature_result.numpy())
             cnt+=1
             feature_result = torch.tensor(0.)
             total = torch.tensor(0.)
@@ -518,3 +502,5 @@ elif args.arch=='mobilenet_v1':
             cnt+=1
             feature_result = torch.tensor(0.)
             total = torch.tensor(0.)
+
+#'''
