@@ -644,12 +644,29 @@ def main():
     all_parameters = model.parameters()
     weight_parameters = []
     bias_parameters = []
-    for pname, p in model.named_parameters():
-        if 'fc' in pname or 'conv' in pname or 'downsample.0' in pname:
-            if 'weight' in pname:
-                weight_parameters.append(p)
-            if 'bias' in pname:
-                bias_parameters.append(p)
+    if args.arch=='resnet_50':
+        for pname, p in model.named_parameters():
+            if 'fc' in pname or 'conv' in pname or 'downsample.0' in pname:
+                if 'weight' in pname:
+                    weight_parameters.append(p)
+                if 'bias' in pname:
+                    bias_parameters.append(p)
+    elif args.arch=='mobilenet_v2':
+        for pname, p in model.named_parameters():
+            if 'classifier' in pname or '0.weight' in pname or '3.weight' in pname or '6.weight' in pname:
+                if 'weight' in pname:
+                    weight_parameters.append(p)
+                if 'bias' in pname:
+                    bias_parameters.append(p)
+    elif args.arch=='mobilenet_v1':
+        for pname, p in model.named_parameters():
+            if 'classifier' in pname or '0.weight' in pname or '3.weight' in pname:
+                if 'weight' in pname:
+                    weight_parameters.append(p)
+                if 'bias' in pname:
+                    bias_parameters.append(p)
+    else:
+        raise NotImplementedError
     wb = weight_parameters+bias_parameters
     wb_parameters_id = list(map(id, wb))
     other_parameters = list(filter(lambda p: id(p) not in wb_parameters_id, all_parameters))
