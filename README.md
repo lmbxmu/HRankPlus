@@ -28,7 +28,7 @@ If you find HRank useful in your research, please consider citing:
 
 In this code, you can run our models on CIFAR-10 and ImageNet dataset. (Task on object detection is preparing)
 
-For rank generation, the code has been tested by Python 3.6, Pytorch 1.0 and CUDA 9.0 on Ubuntu 16.04. And for evaluating(fine-tuning), we recommend you to run with PyTorch 0.4 for the usage of Thop.
+For rank generation, the code has been tested by Python 3.6, Pytorch 1.0 and CUDA 9.0 on Ubuntu 16.04. And for evaluating(fine-tuning), we recommend you to run with PyTorch 1.6 for the usage of Thop.
 
 
 ### Rank Generation
