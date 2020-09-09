@@ -539,18 +539,9 @@ def adjust_learning_rate(optimizer, epoch, step, len_iter):
     if epoch < 5:
         lr = lr * float(1 + step + epoch * len_iter) / (5. * len_iter)
 
-    for idx,param_group in enumerate(optimizer.param_groups):
-        if idx==2:
-            param_group['lr'] = 2*lr
-        else:
-            param_group['lr'] = lr
-
     if step == 0:
-        #logger.info('learning_rate: ' + str(lr))
-        lrname_list = ['Other param', 'Weight param', 'Bias param']
-        logger.info("Epoch {}: ".format(epoch))
-        for idx, param_group in enumerate(optimizer.param_groups):
-            logger.info("{} lr = {:.3f} ".format(lrname_list[idx], param_group['lr']))
+        logger.info('learning_rate: ' + str(lr))
+
 
 def main():
 
@@ -640,48 +631,7 @@ def main():
             device_id.append(i)
         model = nn.DataParallel(model, device_ids=device_id).cuda()
 
-    # split the weight parameter that need weight decay
-    all_parameters = model.parameters()
-    weight_parameters = []
-    bias_parameters = []
-    if args.arch=='resnet_50':
-        for pname, p in model.named_parameters():
-            if 'fc' in pname or 'conv' in pname or 'downsample.0' in pname:
-                if 'weight' in pname:
-                    weight_parameters.append(p)
-                if 'bias' in pname:
-                    bias_parameters.append(p)
-    elif args.arch=='mobilenet_v2':
-        for pname, p in model.named_parameters():
-            if 'classifier' in pname or '0.weight' in pname or '3.weight' in pname or '6.weight' in pname:
-                if 'weight' in pname:
-                    weight_parameters.append(p)
-                if 'bias' in pname:
-                    bias_parameters.append(p)
-    elif args.arch=='mobilenet_v1':
-        for pname, p in model.named_parameters():
-            if 'classifier' in pname or '0.weight' in pname or '3.weight' in pname:
-                if 'weight' in pname:
-                    weight_parameters.append(p)
-                if 'bias' in pname:
-                    bias_parameters.append(p)
-    else:
-        raise NotImplementedError
-    wb = weight_parameters+bias_parameters
-    wb_parameters_id = list(map(id, wb))
-    other_parameters = list(filter(lambda p: id(p) not in wb_parameters_id, all_parameters))
-
-    # define the optimizer
-    optimizer = torch.optim.SGD(
-        [
-            {'params' : other_parameters},
-            {'params' : weight_parameters, 'lr': args.learning_rate, 'weight_decay' : args.weight_decay},
-            {'params': bias_parameters, 'lr': 2*args.learning_rate}
-        ],
-        args.learning_rate,
-        momentum=args.momentum,
-        )
-    #optimizer = torch.optim.SGD(model.parameters(), args.learning_rate, momentum=args.momentum, weight_decay=args.weight_decay)
+    optimizer = torch.optim.SGD(model.parameters(), args.learning_rate, momentum=args.momentum, weight_decay=args.weight_decay)
 
     '''# define the learning rate scheduler
     #scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lambda step : (1.0-step/args.epochs), last_epoch=-1)
