@@ -539,15 +539,18 @@ def adjust_learning_rate(optimizer, epoch, step, len_iter):
     if epoch < 5:
         lr = lr * float(1 + step + epoch * len_iter) / (5. * len_iter)
 
-    if step == 0:
-        logger.info('learning_rate: ' + str(lr))
-
     for idx,param_group in enumerate(optimizer.param_groups):
         if idx==2:
             param_group['lr'] = 2*lr
         else:
             param_group['lr'] = lr
 
+    if step == 0:
+        #logger.info('learning_rate: ' + str(lr))
+        lrname_list = ['Other param', 'Weight param', 'Bias param']
+        logger.info("Epoch {}: ".format(epoch))
+        for idx, param_group in enumerate(optimizer.param_groups):
+            logger.info("{} lr = {:.3f} ".format(lrname_list[idx], param_group['lr']))
 
 def main():
 
@@ -719,6 +722,7 @@ def main():
     # train the model
     epoch = start_epoch
     while epoch < args.epochs:
+
         train_obj, train_top1_acc,  train_top5_acc = train(epoch,  train_loader, model, criterion_smooth, optimizer)
         valid_obj, valid_top1_acc, valid_top5_acc = validate(epoch, val_loader, model, criterion, args)
         if args.use_dali:
