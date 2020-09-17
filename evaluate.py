@@ -539,6 +539,9 @@ def adjust_learning_rate(optimizer, epoch, step, len_iter):
     if epoch < 5:
         lr = lr * float(1 + step + epoch * len_iter) / (5. * len_iter)
 
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
+
     if step == 0:
         logger.info('learning_rate: ' + str(lr))
 
