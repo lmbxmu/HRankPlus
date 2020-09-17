@@ -18,7 +18,7 @@ If you find HRank useful in your research, please consider citing:
 @inproceedings{lin2020hrank,
   title={HRank: Filter Pruning using High-Rank Feature Map},
   author={Lin, Mingbao and Ji, Rongrong and Wang, Yan and Zhang, Yichen and Zhang, Baochang and Tian, Yonghong and Shao, Ling},
-  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
   pages={1529--1538},
   year={2020}
 }
@@ -162,6 +162,7 @@ We provide our pre-trained models, and pruned models. For your ease of reproduci
 | ResNet-50(baseline)  |       25.55M(0.0%)          |      4.11B(0.0%)      |  | |   76.15%      |       92.87%         | [pre-trained](https://drive.google.com/open?id=1OYpVB84BMU0y-KU7PdEPhbHwODmFvPbB)|
 | ResNet-50  |       15.09M(40.8%)          |      2.26B(44.8%)      |  No  | step |  75.56%      |       92.63%         | [pruned](https://drive.google.com/drive/folders/1vQsMbwxqtvWv44GE9Ni-ygn1eJNARn-_?usp=sharing)|
 | ResNet-50  |       11.05M(56.7%)          |      1.52B(62.8%)      |  No | step |   74.19%      |       91.94%         | [pruned](https://drive.google.com/drive/folders/1h-HoeFsHWpIYs_49jzrSs9fDWyAA6iKp?usp=sharing)|
+| ResNet-50  |       11.05M(56.7%)          |      1.52B(62.8%)     |  No | cos |         |                | [pruned]|
 | ResNet-50  |       8.02M(68.6%)          |      0.95B(76.7%)      |  No |  step | 72.30%      |      90.74%         | [pruned](https://drive.google.com/drive/folders/1LldnR--CUp-tV1SRQ8AtlioBjgbzO6IV?usp=sharing)|
 | MobileNet-v2(baseline)|      3.50M(0.0%)           |       314.13M(0.0%)     |   |  |    71.70%         |      90.43%          |  [pre-trained](https://drive.google.com/file/d/16YAmYG9u9NB6ztyzSz6e21qSKcr9AT6e/view?usp=sharing)  |
 
