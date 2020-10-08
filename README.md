@@ -164,6 +164,8 @@ We provide our pre-trained models, and pruned models. For your ease of reproduci
 | ResNet-50  |       11.05M(56.7%)          |      1.52B(62.8%)      |  No | step |   74.19%      |       91.94%         | [pruned](https://drive.google.com/drive/folders/1h-HoeFsHWpIYs_49jzrSs9fDWyAA6iKp?usp=sharing)|
 | ResNet-50  |       8.02M(68.6%)          |      0.95B(76.7%)      |  No |  step | 72.30%      |      90.74%         | [pruned](https://drive.google.com/drive/folders/1LldnR--CUp-tV1SRQ8AtlioBjgbzO6IV?usp=sharing)|
 | ResNet-50  |       11.05M(56.7%)          |      1.52B(62.8%)     |  No | cos |   75.83%    | 92.85% |[pruned](https://drive.google.com/drive/folders/1EE4jw5UXVnSwKDUZfegqN4f5jxRcE2Ec?usp=sharing)|
+| ResNet-50  |       11.81M(53.7%)         |       1.38B(66.2%)     |  No | cos |   75.60%    | 92.61% | [pruned]()|
+| ResNet-50  |       6.56M(74.3%)          |       1.02B(75.0%)     | No  | cos |   74.24%    | 91.8%  | [pruned]()|
 | MobileNet-v2(baseline)|      3.50M(0.0%)           |       314.13M(0.0%)     |   |  |    71.70%         |      90.43%          |  [pre-trained](https://drive.google.com/file/d/16YAmYG9u9NB6ztyzSz6e21qSKcr9AT6e/view?usp=sharing)  |
 
 
